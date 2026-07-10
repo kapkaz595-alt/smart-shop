@@ -1,1 +1,17 @@
+{
+  "name": "阳光便利店 SmartShop",
+  "short_name": "SmartShop",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f9",
+  "theme_color": "#ff7a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
 
