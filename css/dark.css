@@ -1,1 +1,116 @@
+/* ==========================================================================
+   SmartShop 深色模式样式表
+   通过 html.dark 类或 prefers-color-scheme: dark 切换，与 style.css 配套使用。
+   ========================================================================== */
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #111318;
+    --color-surface: #1b1f26;
+    --color-ink: #f1f2f5;
+    --color-ink-soft: #a0a6b1;
+    --color-border: #2c3039;
+
+    --color-primary-soft: rgba(255, 122, 26, 0.18);
+    --color-success-bg: rgba(31, 157, 85, 0.15);
+    --color-danger-bg: rgba(214, 69, 69, 0.15);
+    --color-warning-bg: rgba(245, 158, 11, 0.15);
+    --color-info-bg: rgba(37, 99, 235, 0.15);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+}
+
+html.dark {
+  --color-bg: #111318;
+  --color-surface: #1b1f26;
+  --color-ink: #f1f2f5;
+  --color-ink-soft: #a0a6b1;
+  --color-border: #2c3039;
+
+  --color-primary-soft: rgba(255, 122, 26, 0.18);
+  --color-success-bg: rgba(31, 157, 85, 0.15);
+  --color-danger-bg: rgba(214, 69, 69, 0.15);
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-info-bg: rgba(37, 99, 235, 0.15);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* 当 html 元素拥有 .dark 类时强制覆盖（用于手动切换） */
+.dark .site-header,
+.dark .product-card,
+.dark .modal-box,
+.dark .list-card,
+.dark .order-form,
+.dark .cart-summary,
+.dark .search-history,
+.dark .announcement-item {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.dark .search-input,
+.dark .form-group input,
+.dark .form-group textarea,
+.dark .form-group select {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-ink);
+}
+
+.dark .search-input:focus,
+.dark .form-group input:focus,
+.dark .form-group textarea:focus,
+.dark .form-group select:focus {
+  background: var(--color-surface);
+}
+
+.dark .category-btn,
+.dark .icon-btn,
+.dark .btn-secondary {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-ink-soft);
+}
+
+.dark .category-btn:hover,
+.dark .icon-btn:hover,
+.dark .btn-secondary:hover {
+  background: var(--color-border);
+}
+
+.dark .card-image-wrap,
+.dark .modal-image-wrap,
+.dark .list-card-image {
+  background: var(--color-bg);
+}
+
+.dark .modal-gallery {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+.dark .modal-meta-item,
+.dark .quantity-control button {
+  background: var(--color-bg);
+}
+
+.dark .quantity-control input {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.dark .banner-carousel {
+  background: var(--color-surface);
+}
+
+.dark .site-footer {
+  background: #0e1116;
+}
