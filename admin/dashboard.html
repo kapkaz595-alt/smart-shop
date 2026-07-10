@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>后台管理 | SmartShop</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="stylesheet" href="/css/dark.css" />
+    <style>
+      .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
+      .admin-table th { background: var(--color-bg); font-weight: 700; }
+      .admin-section { margin-bottom: 40px; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="header-top">
+          <a href="../index.html" class="brand">
+            <div class="brand-logo">⚙️</div>
+            <div class="brand-text">
+              <h1 class="brand-name">SmartShop</h1>
+              <p class="brand-slogan">后台管理</p>
+            </div>
+          </a>
+          <div class="header-actions">
+            <button id="logout-btn" type="button" class="btn btn-secondary">退出登录</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="page-section container">
+        <h2 class="page-title">📦 商品管理</h2>
+        <div class="admin-section">
+          <button type="button" class="btn btn-primary" onclick="alert('新增商品功能需配合后端图片上传，当前为演示入口。')">+ 新增商品</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>图片</th>
+                <th>名称</th>
+                <th>分类</th>
+                <th>价格</th>
+                <th>库存</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="admin-product-list"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { checkAdmin, logout, initAdminCache, renderAdminProducts } from '/js/admin.js';
+      import { fetchProducts } from '/js/api.js';
+
+      if (!checkAdmin()) {
+        window.location.href = 'login.html';
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        logout();
+        window.location.href = 'login.html';
+      });
+
+      fetchProducts().then((products) => {
+        initAdminCache(products);
+        renderAdminProducts();
+      });
+    </script>
+  </body>
+</html>
 
