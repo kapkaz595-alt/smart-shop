@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>后台管理 | SmartShop</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/responsive.css" />
-    <link rel="stylesheet" href="/css/dark.css" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/dark.css" />
     <style>
       .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
       .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
@@ -59,8 +59,8 @@
     </main>
 
     <script type="module">
-      import { checkAdmin, logout, initAdminCache, renderAdminProducts } from '/js/admin.js';
-      import { fetchProducts } from '/js/api.js';
+      import { checkAdmin, logout, initAdminCache, renderAdminProducts } from '../js/admin.js';
+      import { fetchProducts } from '../js/api.js';
 
       if (!checkAdmin()) {
         window.location.href = 'login.html';
@@ -78,4 +78,3 @@
     </script>
   </body>
 </html>
-
