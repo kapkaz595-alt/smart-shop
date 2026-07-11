@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>管理员登录 | SmartShop</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/responsive.css" />
-    <link rel="stylesheet" href="/css/dark.css" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/dark.css" />
     <style>
       .login-card {
         max-width: 400px;
@@ -47,7 +47,7 @@
     </main>
 
     <script type="module">
-      import { login } from '/js/admin.js';
+      import { login } from '../js/admin.js';
       document.getElementById('login-form').addEventListener('submit', (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
@@ -58,4 +58,3 @@
     </script>
   </body>
 </html>
-
