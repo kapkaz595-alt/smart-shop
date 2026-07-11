@@ -1,13 +1,17 @@
 // ==========================================================================
 // orders.js
 // 订单管理：提交订单、读取订单、渲染订单列表、更新订单状态。
-// 当前无需支付，点击提交即可生成订单。
+// 当前无需支付，订单提交后通过 WhatsApp 发送给店主，配合 Kaspi 二维码收款。
 // ==========================================================================
 
 import { KEYS, getJson, setJson } from './storage.js';
 import { setState } from './state.js';
 import { generateOrderNumber, showToast } from './utils.js';
 import { calculateTotal, calculateCount } from './cart.js';
+
+// ⚠️ 请替换成店铺真实 WhatsApp 号码：只写数字，带国家区号，不要加 + 号、空格、横杠
+// 例如哈萨克斯坦号码 +7 777 123 4567，这里应写成 '77771234567'
+const SHOP_WHATSAPP_NUMBER = '00000000000';
 
 /**
  * 从购物车创建订单。
@@ -40,6 +44,50 @@ export function createOrder(formData, cart) {
 
   showToast(`订单提交成功：${order.id}`);
   return order;
+}
+
+/**
+ * 把订单内容拼成一段可读文本，用于发送到 WhatsApp。
+ * @param {Object} order
+ */
+export function buildOrderMessage(order) {
+  const deliveryLabel = order.deliveryType === 'delivery' ? '配送' : '到店自取';
+  const itemLines = order.items
+    .map((item) => `- ${item.name} x${item.quantity} - ${item.price * item.quantity} 坚戈`)
+    .join('\n');
+
+  return [
+    `新订单 #${order.id}`,
+    `姓名：${order.customerName || '未填写'}`,
+    `电话：${order.phone || '未填写'}`,
+    `配送方式：${deliveryLabel}`,
+    order.note ? `备注：${order.note}` : '',
+    '',
+    '商品清单：',
+    itemLines,
+    '',
+    `合计：${order.total} 坚戈`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/**
+ * 生成 WhatsApp 跳转链接（消息内容已预填）。
+ * @param {Object} order
+ */
+export function getWhatsAppOrderUrl(order) {
+  const message = buildOrderMessage(order);
+  return `https://wa.me/${SHOP_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * 打开 WhatsApp，把订单信息发送给店主。
+ * @param {Object} order
+ */
+export function sendOrderToWhatsApp(order) {
+  const url = getWhatsAppOrderUrl(order);
+  window.open(url, '_blank');
 }
 
 /**
@@ -130,4 +178,3 @@ export function renderOrders(orders) {
     });
   });
 }
-
