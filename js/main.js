@@ -209,12 +209,20 @@ function handleAddToCart(product, event) {
 function bindEvents() {
   if (searchInput) {
     searchInput.addEventListener('input', handleSearchInput);
+    
+    // 【已修复问题一】监听回车键，并执行立即搜索和过滤
     searchInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
-        commitSearchHistory();
+        event.preventDefault(); // 阻止浏览器默认刷新行为
+        const term = searchInput.value.trim();
+        setState({ searchTerm: term }); // 同步搜索词
+        renderFilteredProducts();       // 立即重新渲染商品列表
+        commitSearchHistory();          // 写入历史记录
         searchHistoryBox.classList.remove('active');
+        searchInput.blur();             // 手机端收起键盘
       }
     });
+    
     searchInput.addEventListener('focus', () => {
       renderSearchHistory(loadSearchHistory(), (selected) => {
         searchInput.value = selected;
@@ -240,10 +248,12 @@ function bindEvents() {
     langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
   }
 
-  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = 'cart.html');
-  if (favBtn) favBtn.addEventListener('click', () => window.location.href = 'favorites.html');
-  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = 'orders.html');
-  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = 'admin/login.html');
+  // 【已修复问题三】为 GitHub Pages 静态路径加上 BASE_URL，彻底解决 404
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = `${baseUrl}cart.html`);
+  if (favBtn) favBtn.addEventListener('click', () => window.location.href = `${baseUrl}favorites.html`);
+  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = `${baseUrl}orders.html`);
+  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = `${baseUrl}admin/login.html`);
 
   // 购物车页面事件
   if (clearCartBtn) clearCartBtn.addEventListener('click', () => {
