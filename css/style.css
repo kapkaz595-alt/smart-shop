@@ -338,7 +338,7 @@ a {
 
 /* ==========================================================================
    分类导航
-   ========================================================================== */
+   ========================================================================= */
 
 .category-nav {
   border-top: 1px solid var(--color-border);
@@ -742,21 +742,30 @@ a {
   margin-top: auto;
 }
 
+/* ==========================================================
+   【已修复问题二】卡片查看详情按钮样式强制调整
+   防止其默认状态因未知样式文件覆盖而变为全白隐形
+   ========================================================== */
 .card-btn {
   flex: 1;
   appearance: none;
-  border: none;
+  border: 1px solid var(--color-border) !important;
   border-radius: var(--radius-sm);
   padding: 9px 0;
-  background: var(--color-ink);
-  color: #fff;
+  background: #f1f2f6 !important;  /* 默认非白色浅灰底 */
+  color: #1f2430 !important;       /* 默认墨黑色清晰字体 */
   font-size: 14px;
   font-weight: 600;
-  transition: background 0.2s ease, transform 0.15s ease;
+  display: block;
+  text-align: center;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 
+/* 鼠标放上去（Hover状态）恢复橘色主题色 */
 .card-btn:hover {
-  background: var(--color-primary-dark);
+  background: var(--color-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--color-primary) !important;
 }
 
 .card-btn:active {
@@ -764,7 +773,8 @@ a {
 }
 
 .card-btn.out-stock {
-  background: var(--color-ink-soft);
+  background: var(--color-ink-soft) !important;
+  color: #fff !important;
   cursor: not-allowed;
 }
 
