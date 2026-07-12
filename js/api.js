@@ -1,25 +1,17 @@
 // ==========================================================================
 // api.js
-// 负责从静态 JSON 文件读取数据，使用浏览器原生 Fetch API。
-// 当前数据源：data/ 目录下的 JSON 文件。
-// 以后升级后端（Node.js + Express + Supabase/Firebase）时，
-// 只需修改这个文件的 URL 与请求逻辑，业务层无需改动。
+// 商品数据改为从 Supabase 数据库读取；店铺信息、分类、轮播、公告
+// 仍从本地 data/ 目录下的 JSON 文件读取。
 // ==========================================================================
+
+import { supabase } from './supabaseClient.js';
 
 const BASE = import.meta.env.BASE_URL;
 
-/**
- * 构建带部署前缀的 URL，确保在不同部署路径下都能访问。
- * @param {string} path
- */
 function buildUrl(path) {
   return `${BASE}${path}`;
 }
 
-/**
- * 通用 JSON 读取辅助函数。
- * @param {string} url
- */
 async function fetchJson(url) {
   const response = await fetch(url, { cache: 'no-store' });
   if (!response.ok) {
@@ -29,15 +21,59 @@ async function fetchJson(url) {
 }
 
 /**
- * 读取所有商品数据。
- * @returns {Promise<Array<Object>>}
+ * 把数据库字段（下划线命名）转换成前端一直在用的字段名（驼峰命名），
+ * 这样 render.js / filter.js 等文件完全不用改。
  */
-export async function fetchProducts() {
-  return fetchJson(buildUrl('data/products.json'));
+function mapProductRow(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    aliases: row.aliases || [],
+    price: row.price,
+    originalPrice: row.original_price,
+    discount: row.discount,
+    category: row.category,
+    brand: row.brand,
+    specs: row.specs,
+    barcode: row.barcode,
+    stock: row.stock,
+    image: row.image,
+    images: row.images || [],
+    description: row.description,
+    features: row.features || [],
+    nutrition: row.nutrition,
+    productionDate: row.production_date,
+    shelfLife: row.shelf_life,
+    manufacturer: row.manufacturer,
+    tags: row.tags || [],
+    isNew: row.is_new,
+    isHot: row.is_hot,
+    isPromotion: row.is_promotion,
+    promotionType: row.promotion_type,
+    views: row.views,
+    clicks: row.clicks,
+    favorites: row.favorites,
+  };
 }
 
 /**
- * 读取分类数据。
+ * 读取所有商品数据（改为从 Supabase 读取）。
+ * @returns {Promise<Array<Object>>}
+ */
+export async function fetchProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    throw new Error(`读取商品数据失败：${error.message}`);
+  }
+  return data.map(mapProductRow);
+}
+
+/**
+ * 读取分类数据（仍从本地 JSON 读取）。
  * @returns {Promise<Array<Object>>}
  */
 export async function fetchCategories() {
@@ -45,7 +81,7 @@ export async function fetchCategories() {
 }
 
 /**
- * 读取店铺信息。
+ * 读取店铺信息（仍从本地 JSON 读取）。
  * @returns {Promise<Object>}
  */
 export async function fetchShop() {
@@ -53,7 +89,7 @@ export async function fetchShop() {
 }
 
 /**
- * 读取轮播广告数据。
+ * 读取轮播广告数据（仍从本地 JSON 读取）。
  * @returns {Promise<Array<Object>>}
  */
 export async function fetchBanners() {
@@ -61,7 +97,7 @@ export async function fetchBanners() {
 }
 
 /**
- * 读取店铺公告数据。
+ * 读取店铺公告数据（仍从本地 JSON 读取）。
  * @returns {Promise<Array<Object>>}
  */
 export async function fetchAnnouncements() {
@@ -82,4 +118,3 @@ export async function fetchHomeData() {
   ]);
   return { products, categories, shop, banners, announcements };
 }
-
