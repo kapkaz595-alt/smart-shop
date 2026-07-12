@@ -1,74 +1,43 @@
 // ==========================================================================
 // language.js
 // 多语言支持：通过 JSON 字典切换界面语言。
-// 目前支持 zh-CN（中文），已预留 kk（哈萨克语）、ru（俄语）、en（英文）扩展。
+// 默认语言：kk（哈萨克语），支持 ru（俄语）、en（英文）、zh-CN（中文）随时切换。
 // ==========================================================================
 
 import { KEYS, getJson, setJson } from './storage.js';
 import { setState } from './state.js';
 
 const translations = {
-  'zh-CN': {
-    home: '首页',
-    products: '全部商品',
-    cart: '购物车',
-    favorites: '我的收藏',
-    orders: '我的订单',
-    search: '搜索商品',
-    categories: '分类',
-    hot: '热门商品',
-    new: '新品上市',
-    promotions: '优惠专区',
-    recommendations: '猜你喜欢',
-    recentlyViewed: '最近浏览',
-    addToCart: '加入购物车',
-    viewDetails: '查看详情',
-    outOfStock: '暂时缺货',
-    inStock: '有货',
-    favorite: '收藏',
-    favorited: '已收藏',
-    submitOrder: '提交订单',
-    orderNo: '订单编号',
-    orderStatus: '订单状态',
-    pending: '待确认',
-    confirmed: '已确认',
-    completed: '已完成',
-    cancelled: '已取消',
-    emptyCart: '购物车还是空的',
-    emptyFavorites: '还没有收藏任何商品',
-    emptyOrders: '还没有订单',
-    shopName: '阳光便利店',
-  },
-  en: {
-    home: 'Home',
-    products: 'Products',
-    cart: 'Cart',
-    favorites: 'Favorites',
-    orders: 'Orders',
-    search: 'Search products',
-    categories: 'Categories',
-    hot: 'Hot Products',
-    new: 'New Arrivals',
-    promotions: 'Promotions',
-    recommendations: 'You May Like',
-    recentlyViewed: 'Recently Viewed',
-    addToCart: 'Add to Cart',
-    viewDetails: 'View Details',
-    outOfStock: 'Out of Stock',
-    inStock: 'In Stock',
-    favorite: 'Favorite',
-    favorited: 'Favorited',
-    submitOrder: 'Submit Order',
-    orderNo: 'Order No',
-    orderStatus: 'Status',
-    pending: 'Pending',
-    confirmed: 'Confirmed',
-    completed: 'Completed',
-    cancelled: 'Cancelled',
-    emptyCart: 'Your cart is empty',
-    emptyFavorites: 'No favorites yet',
-    emptyOrders: 'No orders yet',
-    shopName: 'Sunshine Shop',
+  kk: {
+    home: 'Басты бет',
+    products: 'Тауарлар',
+    cart: 'Себет',
+    favorites: 'Таңдаулылар',
+    orders: 'Тапсырыстар',
+    search: 'Тауарларды іздеу',
+    categories: 'Санаттар',
+    hot: 'Танымал',
+    new: 'Жаңа түсім',
+    promotions: 'Акциялар',
+    recommendations: 'Сізге ұнауы мүмкін',
+    recentlyViewed: 'Жақында қаралған',
+    addToCart: 'Себетке қосу',
+    viewDetails: 'Толығырақ',
+    outOfStock: 'Қолжетімсіз',
+    inStock: 'Қолжетімді',
+    favorite: 'Таңдаулы',
+    favorited: 'Таңдаулыда',
+    submitOrder: 'Тапсырыс беру',
+    orderNo: 'Тапсырыс нөмірі',
+    orderStatus: 'Күйі',
+    pending: 'Растауды күтуде',
+    confirmed: 'Расталды',
+    completed: 'Аяқталды',
+    cancelled: 'Бас тартылды',
+    emptyCart: 'Себет бос',
+    emptyFavorites: 'Таңдаулы жоқ',
+    emptyOrders: 'Тапсырыс жоқ',
+    shopName: 'Күн Шуашы Дүкен',
   },
   ru: {
     home: 'Главная',
@@ -101,56 +70,84 @@ const translations = {
     emptyOrders: 'Нет заказов',
     shopName: 'Магазин Солнечный',
   },
-  kk: {
-    home: 'Басты бет',
-    products: 'Тауарлар',
-    cart: 'Себет',
-    favorites: 'Таңдаулылар',
-    orders: 'Тапсырыстар',
-    search: 'Тауарларды іздеу',
-    categories: 'Санаттар',
-    hot: 'Танымал',
-    new: 'Жаңа түсім',
-    promotions: 'Акциялар',
-    recommendations: 'Сізге ұнауы мүмкін',
-    recentlyViewed: 'Жақында қаралған',
-    addToCart: 'Себетке қосу',
-    viewDetails: 'Толығырақ',
-    outOfStock: 'Қолжетімсіз',
-    inStock: 'Қолжетімді',
-    favorite: 'Таңдаулы',
-    favorited: 'Таңдаулыда',
-    submitOrder: 'Тапсырыс беру',
-    orderNo: 'Тапсырыс нөмірі',
-    orderStatus: 'Күйі',
-    pending: 'Растауды күтуде',
-    confirmed: 'Расталды',
-    completed: 'Аяқталды',
-    cancelled: 'Бас тартылды',
-    emptyCart: 'Себет бос',
-    emptyFavorites: 'Таңдаулы жоқ',
-    emptyOrders: 'Тапсырыс жоқ',
-    shopName: 'Күн Шуашы Дүкен',
+  en: {
+    home: 'Home',
+    products: 'Products',
+    cart: 'Cart',
+    favorites: 'Favorites',
+    orders: 'Orders',
+    search: 'Search products',
+    categories: 'Categories',
+    hot: 'Hot Products',
+    new: 'New Arrivals',
+    promotions: 'Promotions',
+    recommendations: 'You May Like',
+    recentlyViewed: 'Recently Viewed',
+    addToCart: 'Add to Cart',
+    viewDetails: 'View Details',
+    outOfStock: 'Out of Stock',
+    inStock: 'In Stock',
+    favorite: 'Favorite',
+    favorited: 'Favorited',
+    submitOrder: 'Submit Order',
+    orderNo: 'Order No',
+    orderStatus: 'Status',
+    pending: 'Pending',
+    confirmed: 'Confirmed',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+    emptyCart: 'Your cart is empty',
+    emptyFavorites: 'No favorites yet',
+    emptyOrders: 'No orders yet',
+    shopName: 'Sunshine Shop',
   },
+  'zh-CN': {
+    home: '首页',
+    products: '全部商品',
+    cart: '购物车',
+    favorites: '我的收藏',
+    orders: '我的订单',
+    search: '搜索商品',
+    categories: '分类',
+    hot: '热门商品',
+    new: '新品上市',
+    promotions: '优惠专区',
+    recommendations: '猜你喜欢',
+    recentlyViewed: '最近浏览',
+    addToCart: '加入购物车',
+    viewDetails: '查看详情',
+    outOfStock: '暂时缺货',
+    inStock: '有货',
+    favorite: '收藏',
+    favorited: '已收藏',
+    submitOrder: '提交订单',
+    orderNo: '订单编号',
+    orderStatus: '订单状态',
+    pending: '待确认',
+    confirmed: '已确认',
+    completed: '已完成',
+    cancelled: '已取消',
+    emptyCart: '购物车还是空的',
+    emptyFavorites: '还没有收藏任何商品',
+    emptyOrders: '还没有订单',
+    shopName: '阳光便利店',
+  }
 };
 
 /**
- * 获取当前语言。
- */
-/**
- * 初始化语言：从 localStorage 读取并应用。
+ * 初始化语言：从 localStorage 读取并应用（默认哈萨克语 'kk'）。
  */
 export function initLanguage() {
-  const lang = getJson(KEYS.LANGUAGE, 'zh-CN');
+  const lang = getJson(KEYS.LANGUAGE, 'kk');
   document.documentElement.lang = lang;
   applyTranslations(lang);
 }
 
 /**
- * 获取当前语言。
+ * 获取当前语言（默认哈萨克语 'kk'）。
  */
 export function getLanguage() {
-  return getJson(KEYS.LANGUAGE, 'zh-CN');
+  return getJson(KEYS.LANGUAGE, 'kk');
 }
 
 /**
@@ -171,8 +168,9 @@ export function setLanguage(lang) {
  */
 export function t(key, lang) {
   const current = lang || getLanguage();
-  const dict = translations[current] || translations['zh-CN'];
-  return dict[key] || translations['zh-CN'][key] || key;
+  const dict = translations[current] || translations['kk'];
+  // 如果当前选中的语言字典里没有这个词，优先返回哈萨克语，再没有才返回 key 键名
+  return dict[key] || translations['kk'][key] || key;
 }
 
 /**
@@ -191,4 +189,3 @@ export function applyTranslations(lang) {
 }
 
 export { translations };
-
