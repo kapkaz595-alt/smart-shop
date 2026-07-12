@@ -161,6 +161,7 @@ a {
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
+  position: relative; /* 为顶部语言切换提供定位上下文 */
 }
 
 .brand {
@@ -334,6 +335,31 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 🛠️ 【新增区域】移到头部的语言切换胶囊美化样式 */
+.top-lang-picker {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+#lang-select {
+  background-color: var(--color-bg) !important;
+  color: var(--color-ink) !important;
+  border: 1px solid var(--color-border) !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important; /* 精致胶囊外形 */
+  font-size: 13px !important;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none !important;
+  transition: all 0.2s ease;
+}
+
+#lang-select:hover {
+  background-color: var(--color-primary-soft) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary-dark) !important;
 }
 
 /* ==========================================================================
@@ -560,7 +586,7 @@ a {
 }
 
 /* ==========================================================================
-   商品卡片
+   商品卡片与哈萨克语标签重叠修复
    ========================================================================== */
 
 .product-card {
@@ -604,18 +630,24 @@ a {
   transform: scale(1.06);
 }
 
+/* 🛠️ 【融合与美化】采用垂直列排布，彻底拦截哈萨克语长文本导致的标签撞车重叠 */
 .card-tags {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  z-index: 2;
 }
 
 .card-tag {
-  font-size: 11px;
+  position: static !important;
+  white-space: nowrap;
+  font-size: 11px !important;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: 3px 8px !important;
   border-radius: 999px;
   color: #fff;
 }
@@ -626,12 +658,13 @@ a {
 
 .card-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 4px 10px;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px !important;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px !important;
   font-weight: 600;
+  z-index: 2;
 }
 
 .card-badge.in-stock {
@@ -742,18 +775,14 @@ a {
   margin-top: auto;
 }
 
-/* ==========================================================
-   【已修复问题二】卡片查看详情按钮样式强制调整
-   防止其默认状态因未知样式文件覆盖而变为全白隐形
-   ========================================================== */
 .card-btn {
   flex: 1;
   appearance: none;
   border: 1px solid var(--color-border) !important;
   border-radius: var(--radius-sm);
   padding: 9px 0;
-  background: #f1f2f6 !important;  /* 默认非白色浅灰底 */
-  color: #1f2430 !important;       /* 默认墨黑色清晰字体 */
+  background: #f1f2f6 !important;
+  color: #1f2430 !important;
   font-size: 14px;
   font-weight: 600;
   display: block;
@@ -761,7 +790,6 @@ a {
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 
-/* 鼠标放上去（Hover状态）恢复橘色主题色 */
 .card-btn:hover {
   background: var(--color-primary) !important;
   color: #ffffff !important;
@@ -1356,12 +1384,12 @@ a {
 }
 
 /* ==========================================================================
-   页脚
+   页脚与设置区美化修复（解决白底白字看不清）
    ========================================================================== */
 
 .site-footer {
-  background: var(--color-ink);
-  color: rgba(255, 255, 255, 0.82);
+  background: #1a1c22 !important; /* 改为纯正暗夜深色背景 */
+  color: rgba(255, 255, 255, 0.82) !important;
   padding: 36px 24px 20px;
   margin-top: auto;
 }
@@ -1378,14 +1406,15 @@ a {
 
 .footer-block h4 {
   font-size: 14px;
-  color: #fff;
+  color: #fff !important;
   font-weight: 700;
   margin-bottom: 10px;
 }
 
-.footer-block p {
+.footer-block p, 
+.footer-block label {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #e0e0e0 !important; /* 优雅的浅灰文字，防止对比度过低 */
   margin-bottom: 6px;
 }
 
@@ -1393,7 +1422,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.85) !important;
   margin-bottom: 6px;
   transition: color 0.2s ease;
 }
@@ -1407,7 +1436,25 @@ a {
   margin: 16px auto 0;
   font-size: 12px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: #8a8f9d !important;
+}
+
+/* 专门修复页脚内可能残存的本地选择框样式 */
+.site-footer select, 
+.settings-section select {
+  background-color: #2d3039 !important;
+  color: #ffffff !important;
+  border: 1px solid #4a4f5d !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  outline: none !important;
+}
+
+.site-footer select option, 
+.settings-section select option {
+  background-color: #2d3039 !important;
+  color: #ffffff !important;
 }
 
 /* ==========================================================================
@@ -1435,21 +1482,22 @@ a {
 }
 
 /* ==========================================================================
-   提示条
+   通知提示条（Toast）暴力拦截美化（修复白底白字）
    ========================================================================== */
 
-.toast {
+.toast, [class*="toast"], [id*="toast"], .notification, .alert-popup {
   position: fixed;
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--color-ink);
-  color: #fff;
+  background-color: #1a1f2c !important; /* 暗色蓝黑背景 */
+  color: #ffffff !important;
   padding: 12px 20px;
   border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 500;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   z-index: 200;
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -1460,104 +1508,20 @@ a {
   transform: translateX(-50%) translateY(0);
 }
 
-
-/* ==========================================================================
-   🚨 终极强降维打击修复：后台通知提示框（Toast）白底白字隐形问题
-   ========================================================================== */
-
-/* 1. 全方位暴力拦截所有带 toast 字眼的组件：强制改为极深蓝黑底 + 纯白字 */
-.toast, [class*="toast"], [id*="toast"], .notification, .alert-popup {
-  background-color: #1a1f2c !important; 
-  color: #ffffff !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 2. 深入提示框内部，确保里面的标题、小字、小图标等也全部继承纯白颜色 */
+/* 内部子元素强制继承白色 */
 .toast *, [class*="toast"] *, [id*="toast"] *, .notification *, .alert-popup * {
   color: #ffffff !important;
 }
 
-/* 3. 如果是专门代表成功的绿色提示（如：保存成功、上传成功） */
+/* 成功状态（翠绿） */
 .toast-success, .toast.success, [class*="success"], [class*="toast"][class*="success"] {
-  background-color: #10b981 !important; /* 强制翠绿色背景 */
+  background-color: #10b981 !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 4. 如果是代表失败或错误的红色提示 */
+/* 错误与危险状态（高亮红） */
 .toast-error, .toast.error, .toast-danger, [class*="error"], [class*="danger"] {
-  background-color: #ef4444 !important; /* 强制高亮红背景 */
+  background-color: #ef4444 !important;
   color: #ffffff !important;
 }
-/* ==========================================================================
-   页脚与设置区域样式修复：解决白底白字看不清的问题
-   ========================================================================== */
-
-/* 1. 确保整个页脚背景是深色的，和上半部分商品区保持一致 */
-footer, .footer, .settings-section {
-    background-color: #1a1c22 !important; /* 改为深色背景 */
-    color: #ffffff !important;           /* 基础文字改为纯白 */
-}
-
-/* 2. 修复页脚内的各种提示标签、链接和辅助文字颜色 */
-footer p, footer span, footer div, 
-.settings-section label, .settings-section span {
-    color: #e0e0e0 !important; /* 浅灰色文字，确保在深色背景下清晰可见 */
-}
-
-/* 3. 专门修复“主题”和“语言”这两个下拉选择框（Select）的样式 */
-#theme-select, #lang-select, 
-footer select, .settings-section select {
-    background-color: #2d3039 !important; /* 选择框背景改为深灰 */
-    color: #ffffff !important;           /* 选择框内的文字改为白色 */
-    border: 1px solid #4a4f5d !important; /* 给选择框加一个精致的微亮边框 */
-    padding: 6px 12px !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    outline: none !important;
-}
-
-/* 4. 修复选择框展开后，里面的选项（Option）在手机端的文字颜色 */
-#theme-select option, #lang-select option, 
-footer select option {
-    background-color: #2d3039 !important; /* 展开菜单背景 */
-    color: #ffffff !important;           /* 展开菜单文字 */
-}
-
-/* 5. 最底部的版权声明文字修复 */
-footer small, .copyright, footer .text-muted {
-    color: #8a8f9d !important; /* 稍微暗一点的灰色，既能看清又分清主次 */
-}
-/* ==========================================================================
-   修复哈萨克语长文本导致的标签重叠问题
-   ========================================================================== */
-
-/* 让标签容器采用垂直列布局，而不是水平堆叠 */
-.card-tags {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* 标签之间的间距 */
-    align-items: flex-start;
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    z-index: 2;
-}
-
-/* 移除可能存在的定位冲突，让标签自然换行排列 */
-.card-tag {
-    position: static !important; 
-    white-space: nowrap; /* 防止单字换行 */
-    padding: 3px 8px !important;
-    font-size: 11px !important;
-}
-
-/* 调整右侧“有货/缺货”角标的位置，避免和左侧展开的标签撞车 */
-.card-badge {
-    top: 8px;
-    right: 8px;
-    padding: 3px 8px !important;
-    font-size: 11px !important;
-}
-
