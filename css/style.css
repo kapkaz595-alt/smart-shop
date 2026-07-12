@@ -1459,3 +1459,34 @@ a {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+
+/* ==========================================================================
+   🚨 终极强降维打击修复：后台通知提示框（Toast）白底白字隐形问题
+   ========================================================================== */
+
+/* 1. 全方位暴力拦截所有带 toast 字眼的组件：强制改为极深蓝黑底 + 纯白字 */
+.toast, [class*="toast"], [id*="toast"], .notification, .alert-popup {
+  background-color: #1a1f2c !important; 
+  color: #ffffff !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 2. 深入提示框内部，确保里面的标题、小字、小图标等也全部继承纯白颜色 */
+.toast *, [class*="toast"] *, [id*="toast"] *, .notification *, .alert-popup * {
+  color: #ffffff !important;
+}
+
+/* 3. 如果是专门代表成功的绿色提示（如：保存成功、上传成功） */
+.toast-success, .toast.success, [class*="success"], [class*="toast"][class*="success"] {
+  background-color: #10b981 !important; /* 强制翠绿色背景 */
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 4. 如果是代表失败或错误的红色提示 */
+.toast-error, .toast.error, .toast-danger, [class*="error"], [class*="danger"] {
+  background-color: #ef4444 !important; /* 强制高亮红背景 */
+  color: #ffffff !important;
+}
