@@ -37,7 +37,8 @@
       <section class="page-section container">
         <h2 class="page-title">📦 商品管理</h2>
         <div class="admin-section">
-          <button type="button" class="btn btn-primary" onclick="alert('新增商品功能需配合后端图片上传，当前为演示入口。')">+ 新增商品</button>
+          <!-- 💡 移除了原本的 onclick 弹窗，加上了 id 方便在脚本中控制跳转 -->
+          <button id="add-product-btn" type="button" class="btn btn-primary">+ 新增商品</button>
         </div>
         <div style="overflow-x:auto;">
           <table class="admin-table">
@@ -59,22 +60,35 @@
     </main>
 
     <script type="module">
-      import { checkAdmin, logout, initAdminCache, renderAdminProducts } from '../js/admin.js';
-      import { fetchProducts } from '../js/api.js';
+      import { checkAdmin, logout, renderAdminProducts } from '../js/admin.js';
 
-      if (!checkAdmin()) {
-        window.location.href = 'login.html';
+      // 1. 拦截未登录用户
+      // 由于新版 checkAdmin 是异步的（需要请求 Supabase 验证 session），这里我们做一下异步处理
+      async function initDashboard() {
+        const isAdmin = await checkAdmin();
+        if (!isAdmin) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // 2. 绑定退出登录事件
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+          await logout();
+          window.location.href = 'login.html';
+        });
+
+        // 3. 绑定“新增商品”点击事件，点击后跳转到商品编辑页（不传 ID 即代表新增）
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+          window.location.href = 'product-edit.html';
+        });
+
+        // 4. 渲染来自于 Supabase 的真实商品数据
+        // 新版 renderAdminProducts 内部已经自带了从 Supabase select 数据的逻辑
+        renderAdminProducts();
       }
 
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        logout();
-        window.location.href = 'login.html';
-      });
-
-      fetchProducts().then((products) => {
-        initAdminCache(products);
-        renderAdminProducts();
-      });
+      // 启动页面
+      initDashboard();
     </script>
   </body>
 </html>
