@@ -1490,3 +1490,43 @@ a {
   background-color: #ef4444 !important; /* 强制高亮红背景 */
   color: #ffffff !important;
 }
+/* ==========================================================================
+   页脚与设置区域样式修复：解决白底白字看不清的问题
+   ========================================================================== */
+
+/* 1. 确保整个页脚背景是深色的，和上半部分商品区保持一致 */
+footer, .footer, .settings-section {
+    background-color: #1a1c22 !important; /* 改为深色背景 */
+    color: #ffffff !important;           /* 基础文字改为纯白 */
+}
+
+/* 2. 修复页脚内的各种提示标签、链接和辅助文字颜色 */
+footer p, footer span, footer div, 
+.settings-section label, .settings-section span {
+    color: #e0e0e0 !important; /* 浅灰色文字，确保在深色背景下清晰可见 */
+}
+
+/* 3. 专门修复“主题”和“语言”这两个下拉选择框（Select）的样式 */
+#theme-select, #lang-select, 
+footer select, .settings-section select {
+    background-color: #2d3039 !important; /* 选择框背景改为深灰 */
+    color: #ffffff !important;           /* 选择框内的文字改为白色 */
+    border: 1px solid #4a4f5d !important; /* 给选择框加一个精致的微亮边框 */
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    outline: none !important;
+}
+
+/* 4. 修复选择框展开后，里面的选项（Option）在手机端的文字颜色 */
+#theme-select option, #lang-select option, 
+footer select option {
+    background-color: #2d3039 !important; /* 展开菜单背景 */
+    color: #ffffff !important;           /* 展开菜单文字 */
+}
+
+/* 5. 最底部的版权声明文字修复 */
+footer small, .copyright, footer .text-muted {
+    color: #8a8f9d !important; /* 稍微暗一点的灰色，既能看清又分清主次 */
+}
+
