@@ -138,7 +138,7 @@ function handleCategorySelect(category) {
   renderCategories(getState().categories, category, handleCategorySelect);
   renderFilteredProducts();
 
-  // 🛠️【新增修复问题二】点击分类（例如饮料、全部商品）后，页面自动平滑滚动到商品展示区
+  // 🛠️【修复问题二】点击分类（例如饮料、全部商品）后，页面自动平滑滚动到商品展示区
   const targetGrid = document.getElementById('product-grid');
   if (targetGrid) {
     targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -152,12 +152,6 @@ function handleSearchInput(event) {
   const term = event.target.value;
   setState({ searchTerm: term });
   renderFilteredProducts();
-  renderSearchHistory(loadSearchHistory(), (selected) => {
-    searchInput.value = selected;
-    setState({ searchTerm: selected });
-    renderFilteredProducts();
-    searchHistoryBox.classList.remove('active');
-  });
 }
 
 /**
@@ -168,45 +162,6 @@ function commitSearchHistory() {
   if (!term) return;
   const next = recordSearch(term);
   setState({ searchHistory: next });
-  renderSearchHistory(next, (selected) => {
-    searchInput.value = selected;
-    setState({ searchTerm: selected });
-    renderFilteredProducts();
-    searchHistoryBox.classList.remove('active');
-  });
-}
-
-/**
- * 处理搜索框失焦：保存搜索历史。
- */
-function handleSearchBlur() {
-  commitSearchHistory();
-}
-
-/**
- * 打开商品详情弹窗。
- */
-function handleOpenProduct(product) {
-  recordView(product);
-  openProduct(product, { onView: () => {} });
-}
-
-/**
- * 切换收藏。
- */
-function handleToggleFavorite(product) {
-  toggleFavorite(product.id);
-  renderFilteredProducts();
-  renderAllSections();
-}
-
-/**
- * 加入购物车。
- */
-function handleAddToCart(product, event) {
-  if (event) event.stopPropagation();
-  addToCart(product, 1);
-  renderCartSummary(loadCart());
 }
 
 /**
@@ -214,41 +169,52 @@ function handleAddToCart(product, event) {
  */
 function bindEvents() {
   if (searchInput) {
+    // 1. 键盘实时输入：输入什么就实时联动结果
     searchInput.addEventListener('input', handleSearchInput);
     
-    // 监听回车键，并执行立即搜索和过滤
+    // 2. 📱【优化修复问题三】手机端键盘搜索键/回车键的核心事件
     searchInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
-        event.preventDefault(); // 阻止浏览器默认刷新行为
-        const term = searchInput.value.trim();
-        setState({ searchTerm: term }); // 同步搜索词
-        renderFilteredProducts();       // 立即重新渲染商品列表
-        commitSearchHistory();          // 写入历史记录
-        searchHistoryBox.classList.remove('active');
-        searchInput.blur();             // 手机端收起键盘
+        event.preventDefault(); // 阻止手机浏览器默认按回车刷新页面
         
-        // 🛠️ 搜索时同样自动滚动到商品结果区，方便查看
+        const term = searchInput.value.trim();
+        setState({ searchTerm: term }); // 强制把当前输入文字同步进系统
+        renderFilteredProducts();       // 立即执行大范围搜索过滤
+        commitSearchHistory();          // 把这一次的记录保存到历史列表
+        
+        searchHistoryBox.classList.remove('active'); // 隐藏历史记录弹窗
+        searchInput.blur();             // 🟢 核心：让框失焦，强制收起手机软键盘
+
+        // 搜索成功后，自动平滑滚动到下面的全部商品结果区域
         const targetGrid = document.getElementById('product-grid');
-        if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (targetGrid) {
+          targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     });
     
+    // 3. 聚焦时展现历史记录框
     searchInput.addEventListener('focus', () => {
       renderSearchHistory(loadSearchHistory(), (selected) => {
+        // 点击历史记录条目时的回调逻辑
         searchInput.value = selected;
         setState({ searchTerm: selected });
         renderFilteredProducts();
         searchHistoryBox.classList.remove('active');
+        
+        // 点击历史记录同样让页面滚下去展示
+        const targetGrid = document.getElementById('product-grid');
+        if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       searchHistoryBox.classList.add('active');
     });
     
-    searchInput.addEventListener('blur', () => {
-      // 🛠️【微调】稍微延迟隐藏，防止阻断点击历史记录，且不干扰正常回车检索
-      setTimeout(() => {
+    // 4. 🔒【安全防冲突修复】移除原来的失焦定时器，改用全局点击拦截历史框
+    document.addEventListener('click', (e) => {
+      // 如果点击的地方既不是搜索框，也不是历史记录框，说明用户在点空白处，这时才关闭历史框
+      if (!searchInput.contains(e.target) && !searchHistoryBox.contains(e.target)) {
         searchHistoryBox.classList.remove('active');
-        commitSearchHistory();
-      }, 250);
+      }
     });
   }
 
