@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>阳光便利店 | SmartShop</title>
+    <title data-i18n="shopTitle">阳光便利店 | SmartShop</title>
     <meta name="description" content="阳光便利店数字货架 — 扫码即可浏览商品、加入购物车、收藏、查看优惠。" />
     <meta name="robots" content="index, follow" />
     <meta property="og:title" content="阳光便利店 | SmartShop" />
@@ -38,14 +38,14 @@
             <div id="shop-logo" class="brand-logo" aria-hidden="true">☀️</div>
             <div class="brand-text">
               <h1 id="shop-name" class="brand-name">阳光便利店</h1>
-              <p id="shop-slogan" class="brand-slogan">家门口的数字货架</p>
+              <p id="shop-slogan" class="brand-slogan" data-i18n="shopSlogan">家门口的数字货架</p>
             </div>
           </a>
 
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
-            <label for="search-input" class="visually-hidden">搜索商品</label>
-            <input id="search-input" type="search" class="search-input" placeholder="搜索商品、品牌、分类..." autocomplete="off" />
+            <label for="search-input" class="visually-hidden" data-i18n="searchPlaceholder">搜索商品</label>
+            <input id="search-input" type="search" class="search-input" placeholder="搜索商品、品牌、分类..." data-i18n-placeholder="searchPlaceholder" autocomplete="off" />
             <div id="search-history" class="search-history"></div>
           </div>
 
@@ -56,13 +56,23 @@
           </div>
 
           <div class="header-actions">
-            <button id="favorites-btn" class="icon-btn" aria-label="收藏">❤️</button>
-            <button id="cart-btn" class="icon-btn" aria-label="购物车">
+            <button id="favorites-btn" class="icon-btn" aria-label="收藏" data-i18n-label="favorite">❤️</button>
+            <button id="cart-btn" class="icon-btn" aria-label="购物车" data-i18n-label="cart">
               🛒
               <span class="badge" hidden>0</span>
             </button>
-            <button id="orders-btn" class="icon-btn" aria-label="订单">📋</button>
-            <button id="admin-btn" class="icon-btn" aria-label="管理">⚙️</button>
+            <button id="orders-btn" class="icon-btn" aria-label="订单" data-i18n-label="orders">📋</button>
+            <button id="admin-btn" class="icon-btn" aria-label="管理" data-i18n-label="admin">⚙️</button>
+            
+            <!-- 🛠️ 【核心改动】移到最顶部的多语言切换胶囊 -->
+            <div class="top-lang-picker">
+              <select id="lang-select" aria-label="Language Selector">
+                <option value="kk">Қазақша</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="zh-CN">中文</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -90,49 +100,49 @@
       <!-- 优惠专区 -->
       <section id="promotions" class="section-promotions container section-container">
         <div class="section-header">
-          <h2 class="section-title">🔥 优惠专区</h2>
-          <a href="products.html" class="view-all-link">查看全部 →</a>
+          <h2 class="section-title" data-i18n="promotionsSection">🔥 优惠专区</h2>
+          <a href="products.html" class="view-all-link" data-i18n="viewAll">查看全部 →</a>
         </div>
-        <p class="empty-state" hidden>暂无促销商品。</p>
+        <p class="empty-state" data-i18n="emptyState" hidden>暂无促销商品。</p>
         <div id="promotions-grid" class="product-grid"></div>
       </section>
 
       <!-- 新品上市 -->
       <section id="new-arrivals" class="new-section container section-container">
         <div class="section-header">
-          <h2 class="section-title">✨ 新品上市</h2>
-          <a href="products.html" class="view-all-link">查看全部 →</a>
+          <h2 class="section-title" data-i18n="newSection">✨ 新品上市</h2>
+          <a href="products.html" class="view-all-link" data-i18n="viewAll">查看全部 →</a>
         </div>
-        <p class="empty-state" hidden>暂无新品。</p>
+        <p class="empty-state" data-i18n="emptyState" hidden>暂无新品。</p>
         <div id="new-grid" class="product-grid"></div>
       </section>
 
       <!-- 热门商品 -->
       <section class="hot-section container section-container">
         <div class="section-header">
-          <h2 class="section-title">🏆 热门商品</h2>
-          <a href="products.html" class="view-all-link">查看全部 →</a>
+          <h2 class="section-title" data-i18n="hotSection">🏆 热门商品</h2>
+          <a href="products.html" class="view-all-link" data-i18n="viewAll">查看全部 →</a>
         </div>
-        <p class="empty-state" hidden>暂无热门商品。</p>
+        <p class="empty-state" data-i18n="emptyState" hidden>暂无热门商品。</p>
         <div id="hot-grid" class="product-grid"></div>
       </section>
 
       <!-- 全部商品 -->
       <section class="page-section container">
         <div class="section-header">
-          <h2 id="section-title" class="section-title">🏪 全部商品</h2>
+          <h2 id="section-title" class="section-title" data-i18n="products">🏪 全部商品</h2>
           <p id="result-count" class="section-count"></p>
         </div>
-        <p id="empty-state" class="empty-state" hidden>没有找到相关商品，换个关键词试试吧。</p>
+        <p id="empty-state" class="empty-state" data-i18n="noProductsFound" hidden>没有找到相关商品，换个关键词试试吧。</p>
         <div id="product-grid" class="product-grid"></div>
       </section>
 
       <!-- 猜你喜欢 -->
       <section class="recommendations-section container section-container">
         <div class="section-header">
-          <h2 class="section-title">💡 猜你喜欢</h2>
+          <h2 class="section-title" data-i18n="recommendSection">💡 猜你喜欢</h2>
         </div>
-        <p class="empty-state" hidden>浏览更多商品后，会在这里为您推荐。</p>
+        <p class="empty-state" data-i18n="recommendEmpty" hidden>浏览更多商品后，会在这里为您推荐。</p>
         <div id="recommend-grid" class="product-grid"></div>
       </section>
     </main>
@@ -159,15 +169,15 @@
           <p id="modal-stock" class="modal-stock"></p>
           <div id="modal-meta" class="modal-meta-grid"></div>
           <div class="modal-desc">
-            <h4 class="modal-subtitle">商品介绍</h4>
+            <h4 class="modal-subtitle" data-i18n="productDesc">商品介绍</h4>
             <p id="modal-desc"></p>
           </div>
           <div id="modal-features" class="modal-features">
-            <h4 class="modal-subtitle">商品特点</h4>
+            <h4 class="modal-subtitle" data-i18n="productFeatures">商品特点</h4>
           </div>
           <div class="modal-actions">
-            <button id="modal-favorite" type="button" class="modal-btn secondary">🤍 收藏</button>
-            <button id="modal-add-cart" type="button" class="modal-btn primary">🛒 加入购物车</button>
+            <button id="modal-favorite" type="button" class="modal-btn secondary" data-i18n="favorite">🤍 收藏</button>
+            <button id="modal-add-cart" type="button" class="modal-btn primary" data-i18n="addToCart">🛒 加入购物车</button>
           </div>
         </div>
       </div>
@@ -177,40 +187,32 @@
     <footer class="site-footer">
       <div class="container footer-content">
         <div class="footer-block">
-          <h4>店铺信息</h4>
+          <h4 data-i18n="shopInfo">店铺信息</h4>
           <p id="footer-name">阳光便利店</p>
           <p id="shop-address-footer">📍 某某市幸福路 88 号</p>
           <p id="shop-phone-footer">☎ 138-0000-0000</p>
           <p id="shop-hours-footer">🕒 每天 09:00 - 22:00</p>
         </div>
         <div class="footer-block">
-          <h4>快速联系</h4>
+          <h4 data-i18n="quickContact">快速联系</h4>
           <a id="shop-whatsapp" class="footer-link" href="#" target="_blank">WhatsApp</a>
           <a id="shop-telegram" class="footer-link" href="#" target="_blank">Telegram</a>
-          <a id="shop-map" class="footer-link" href="#" target="_blank">Google Map 导航</a>
+          <a id="shop-map" class="footer-link" href="#" target="_blank" data-i18n="googleMapNav">Google Map 导航</a>
         </div>
         <div class="footer-block">
-          <h4>设置</h4>
+          <h4 data-i18n="settings">设置</h4>
           <p>
-            <label for="theme-select">主题：</label>
+            <label for="theme-select" data-i18n="themeLabel">主题：</label>
             <select id="theme-select">
-              <option value="auto">自动</option>
-              <option value="light">浅色</option>
-              <option value="dark">深色</option>
+              <option value="auto" data-i18n="themeAuto">自动</option>
+              <option value="light" data-i18n="themeLight">浅色</option>
+              <option value="dark" data-i18n="themeDark">深色</option>
             </select>
           </p>
-          <p>
-            <label for="lang-select">语言：</label>
-            <select id="lang-select">
-              <option value="zh-CN">中文</option>
-              <option value="en">English</option>
-              <option value="ru">Русский</option>
-              <option value="kk">Қазақша</option>
-            </select>
-          </p>
+          <!-- 🛠️ 原本这里的语言切换被完全安全地移到了头部 -->
         </div>
       </div>
-      <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name">阳光便利店</span> SmartShop. 保留所有权利。</p>
+      <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name">阳光便利店</span> SmartShop. <span data-i18n="allRightsReserved">保留所有权利。</span></p>
     </footer>
 
     <script type="module" src="js/main.js"></script>
