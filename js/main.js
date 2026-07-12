@@ -6,7 +6,7 @@
 
 import { fetchHomeData } from './api.js';
 import { initPersistedState, getState, setState, subscribe } from './state.js';
-import { initTheme } from './theme.js';
+import { initTheme, toggleTheme } from './theme.js';
 import { initLanguage, setLanguage } from './language.js';
 import {
   renderShopHeader,
@@ -33,7 +33,7 @@ const cartBtn = document.getElementById('cart-btn');
 const favBtn = document.getElementById('favorites-btn');
 const ordersBtn = document.getElementById('orders-btn');
 const adminBtn = document.getElementById('admin-btn');
-const themeSelect = document.getElementById('theme-select');
+const themeToggleBtn = document.getElementById('theme-toggle');
 const langSelect = document.getElementById('lang-select');
 const clearCartBtn = document.getElementById('clear-cart-btn');
 const submitOrderBtn = document.getElementById('submit-order-btn');
@@ -197,17 +197,17 @@ function bindEvents() {
   if (searchInput) {
     // 1. 键盘实时输入：输入什么就实时联动结果
     searchInput.addEventListener('input', handleSearchInput);
-    
+
     // 2. 📱 手机端键盘搜索键/回车键的核心事件
     searchInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault(); // 阻止手机浏览器默认按回车刷新页面
-        
+
         const term = searchInput.value.trim();
         setState({ searchTerm: term }); // 强制把当前输入文字同步进系统
         renderFilteredProducts();       // 立即执行大范围搜索过滤
         commitSearchHistory();          // 把这一次的记录保存到历史列表
-        
+
         searchHistoryBox.classList.remove('active'); // 隐藏历史记录弹窗
         searchInput.blur();             // 让框失焦，强制收起手机软键盘
 
@@ -218,7 +218,7 @@ function bindEvents() {
         }
       }
     });
-    
+
     // 3. 聚焦时展现历史记录框
     searchInput.addEventListener('focus', () => {
       renderSearchHistory(loadSearchHistory(), (selected) => {
@@ -227,14 +227,14 @@ function bindEvents() {
         setState({ searchTerm: selected });
         renderFilteredProducts();
         searchHistoryBox.classList.remove('active');
-        
+
         // 点击历史记录同样让页面滚下去展示
         const targetGrid = document.getElementById('product-grid');
         if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       searchHistoryBox.classList.add('active');
     });
-    
+
     // 4. 全局点击拦截历史框
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !searchHistoryBox.contains(e.target)) {
@@ -243,9 +243,10 @@ function bindEvents() {
     });
   }
 
-  if (themeSelect) {
-    themeSelect.addEventListener('change', (e) => {
-      import('./theme.js').then((m) => m.setTheme(e.target.value));
+  // 主题切换按钮：点击一次在浅色/深色之间切换
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
     });
   }
 
@@ -276,8 +277,8 @@ function bindEvents() {
   // 如果你的语言弹窗没有包裹在 langSelect 里，而是独立在页面任意地方，执行这一段兜底处理
   document.querySelectorAll('.lang-option, [data-lang-btn], [data-lang]').forEach(item => {
     // 防止重复绑定，如果是 langSelect 内部的就不在这里额外处理了
-    if (langSelect && langSelect.contains(item)) return; 
-    
+    if (langSelect && langSelect.contains(item)) return;
+
     item.addEventListener('click', () => {
       const selectedLang = item.getAttribute('data-lang') || item.getAttribute('data-lang-btn');
       if (selectedLang) {
