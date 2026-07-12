@@ -1,7 +1,6 @@
 // ==========================================================================
 // render.js
 // 负责把数据渲染成 DOM：店铺信息、轮播、公告、分类、商品卡片、购物车/收藏/订单列表。
-// 本文件只负责“画出来”，业务逻辑在 main.js / search.js / filter.js 等模块中处理。
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
@@ -166,13 +165,6 @@ export function renderCategories(categories, activeCategory, onSelect) {
 
 /**
  * 渲染商品卡片网格。
- * @param {Array<Object>} products
- * @param {Object} options
- * @param {(product: Object) => void} options.onOpen
- * @param {(product: Object) => void} options.onToggleFavorite
- * @param {(product: Object, event: Event) => void} options.onAddToCart
- * @param {Array<number>} options.favorites
- * @param {string} options.gridId 目标网格容器 ID，默认 'product-grid'
  */
 export function renderProducts(products, options = {}) {
   const gridId = options.gridId || 'product-grid';
@@ -198,12 +190,14 @@ export function renderProducts(products, options = {}) {
     .map((product) => createProductCardHtml(product, favorites.includes(product.id)))
     .join('');
 
+  // 🛠️ 修复核心：重新梳理点击卡片与“查看详情”按钮的事件机制
   grid.querySelectorAll('.product-card').forEach((card) => {
     const product = products.find((p) => p.id === Number(card.dataset.id));
     if (!product) return;
 
+    // 点击整张卡片（排除收藏与购物车按钮，但允许点击“查看详情”按钮）
     card.addEventListener('click', (event) => {
-      if (event.target.closest('.favorite-btn, .add-cart-btn, .card-btn')) return;
+      if (event.target.closest('.favorite-btn, .add-cart-btn')) return;
       onOpen(product);
     });
 
@@ -262,10 +256,11 @@ function createProductCardHtml(product, isFavorite) {
         <h3 class="card-name">${product.name}</h3>
         <p class="card-specs">${product.specs}</p>
         <div class="card-price-row">
-          <span class="card-price">${product.price}<span> ${product.currencyName || '坚戈'}</span></span>
+          <span class="card-price">${product.price}<span> 坚戈</span></span>
           ${product.originalPrice > product.price ? `<span class="card-original-price">${product.originalPrice}</span>` : ''}
         </div>
         <div class="card-actions">
+          <!-- 🛠️ 保留 class 供样式使用，但在事件中不再拦截它 -->
           <button type="button" class="card-btn ${inStock ? '' : 'out-stock'}">${inStock ? '查看详情' : '暂时缺货'}</button>
           <button type="button" class="add-cart-btn" data-id="${product.id}" ${inStock ? '' : 'disabled'} aria-label="加入购物车">
             🛒
@@ -278,9 +273,6 @@ function createProductCardHtml(product, isFavorite) {
 
 /**
  * 渲染商品列表（用于购物车、收藏、订单等页面）。
- * @param {Array<Object>} items
- * @param {string} containerId
- * @param {Function} renderItem
  */
 export function renderList(items, containerId, renderItem) {
   const container = document.getElementById(containerId);
@@ -296,7 +288,6 @@ export function renderList(items, containerId, renderItem) {
 
 /**
  * 渲染页脚。
- * @param {Object} shop
  */
 export function renderFooter(shop) {
   if (!shop) return;
@@ -305,4 +296,3 @@ export function renderFooter(shop) {
 }
 
 export { ALL_CATEGORIES_LABEL };
-
