@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 渐变色定义，让图标更有质感 -->
+  <defs>
+    <linearGradient id="basketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ECC71" /> <!-- 清新绿 -->
+      <stop offset="100%" stop-color="#27AE60" /> <!-- 深绿 -->
+    </linearGradient>
+  </defs>
+
+  <!-- 购物篮提手 -->
+  <path d="M9 14 C9 6, 23 6, 23 14" fill="none" stroke="#E67E22" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- 购物篮主体 -->
+  <path d="M5 13 H27 L24 26 C24 28, 8 28, 8 26 Z" fill="url(#basketGrad)" />
+
+  <!-- 购物篮表面的格子纹理（凸显超市菜篮子感觉） -->
+  <path d="M9 17 H23 M10 22 H22" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
+
+  <!-- 篮子里冒出来的胡萝卜/新鲜叶子意象（代表生鲜） -->
+  <path d="M13 13 C12 9, 15 7, 16 11 C17 7, 20 9, 19 13 Z" fill="#E67E22" />
+  <path d="M15 10 C14 8, 16 6, 17 9 Z" fill="#27AE60" />
+</svg>
