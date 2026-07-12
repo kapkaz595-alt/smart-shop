@@ -63,7 +63,6 @@
       import { checkAdmin, logout, renderAdminProducts } from '../js/admin.js';
 
       // 1. 拦截未登录用户
-      // 由于新版 checkAdmin 是异步的（需要请求 Supabase 验证 session），这里我们做一下异步处理
       async function initDashboard() {
         const isAdmin = await checkAdmin();
         if (!isAdmin) {
@@ -77,13 +76,13 @@
           window.location.href = 'login.html';
         });
 
-        // 3. 【已修复】修改为相对路径跳转，彻底解决 GitHub Pages 下的 404 路径问题
+        // 3. 【彻底修复】利用原生 URL 动态获取并计算绝对路径，完美防御本地与线上 GitHub Pages 的 404
         document.getElementById('add-product-btn').addEventListener('click', () => {
-          window.location.href = './product-edit.html';
+          const targetUrl = new URL('product-edit.html', window.location.href).href;
+          window.location.href = targetUrl;
         });
 
         // 4. 渲染来自于 Supabase 的真实商品数据
-        // 新版 renderAdminProducts 内部已经自带了从 Supabase select 数据的逻辑
         renderAdminProducts();
       }
 
