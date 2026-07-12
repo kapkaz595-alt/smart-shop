@@ -1529,4 +1529,35 @@ footer select option {
 footer small, .copyright, footer .text-muted {
     color: #8a8f9d !important; /* 稍微暗一点的灰色，既能看清又分清主次 */
 }
+/* ==========================================================================
+   修复哈萨克语长文本导致的标签重叠问题
+   ========================================================================== */
+
+/* 让标签容器采用垂直列布局，而不是水平堆叠 */
+.card-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* 标签之间的间距 */
+    align-items: flex-start;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+}
+
+/* 移除可能存在的定位冲突，让标签自然换行排列 */
+.card-tag {
+    position: static !important; 
+    white-space: nowrap; /* 防止单字换行 */
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+}
+
+/* 调整右侧“有货/缺货”角标的位置，避免和左侧展开的标签撞车 */
+.card-badge {
+    top: 8px;
+    right: 8px;
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+}
 
