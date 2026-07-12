@@ -1,9 +1,11 @@
 // ==========================================================================
 // render.js
 // 负责把数据渲染成 DOM：店铺信息、轮播、公告、分类、商品卡片、购物车/收藏/订单列表。
+// 引入多语言翻译核心函数 t，完美适配哈萨克斯坦国情下的多语言动态渲染。
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
+import { t } from './language.js'; // 【引入】多语言翻译控制中心
 
 const ALL_CATEGORIES_LABEL = '全部商品';
 
@@ -50,7 +52,7 @@ export function renderShopHeader(shop) {
 
 /**
  * 渲染轮播广告。
- * @param {Array<Object>} banners
+ * @param {Object[]} banners
  */
 export function renderBanners(banners) {
   const track = document.getElementById('banner-track');
@@ -74,7 +76,7 @@ export function renderBanners(banners) {
   dots.innerHTML = banners
     .map(
       (_, index) => `
-      <button class="banner-dot ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="切换到第 ${index + 1} 张 banner"></button>
+      <button class="banner-dot ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="Slide ${index + 1}"></button>
     `,
     )
     .join('');
@@ -111,7 +113,7 @@ function startBannerCarousel(count) {
 
 /**
  * 渲染公告栏。
- * @param {Array<Object>} announcements
+ * @param {Object[]} announcements
  */
 export function renderAnnouncements(announcements) {
   const track = document.getElementById('announcement-track');
@@ -122,7 +124,9 @@ export function renderAnnouncements(announcements) {
     .map(
       (item) => `
       <div class="announcement-item">
-        <span class="badge">${item.type === 'promotion' ? '优惠' : item.type === 'new' ? '新品' : '公告'}</span>
+        <span class="badge" data-i18n="${item.type === 'promotion' ? 'promotions' : item.type === 'new' ? 'new' : 'home'}">
+          ${item.type === 'promotion' ? t('promotions') : item.type === 'new' ? t('new') : t('home')}
+        </span>
         <span>${item.title}：${item.content}</span>
       </div>
     `,
@@ -132,15 +136,13 @@ export function renderAnnouncements(announcements) {
 
 /**
  * 渲染分类导航按钮。
- * @param {Array<Object>} categories
- * @param {string} activeCategory
- * @param {(category: string) => void} onSelect
  */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
   if (!list) return;
 
-  const items = [{ id: 'all', name: ALL_CATEGORIES_LABEL, icon: '🏪' }, ...categories];
+  // 将硬编码文本替换为动态语言函数 t('products')
+  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
 
   list.innerHTML = items
     .map(
@@ -148,8 +150,8 @@ export function renderCategories(categories, activeCategory, onSelect) {
       <li>
         <button
           type="button"
-          class="category-btn ${cat.name === activeCategory ? 'active' : ''}"
-          data-category="${cat.name}"
+          class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}"
+          data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}"
         >
           <span class="category-icon">${cat.icon || ''}</span> ${cat.name}
         </button>
@@ -184,18 +186,21 @@ export function renderProducts(products, options = {}) {
   const hasResults = products.length > 0;
   grid.hidden = !hasResults;
   if (empty) empty.hidden = hasResults;
-  if (count) count.textContent = `共 ${products.length} 件商品`;
+  
+  // 移除硬编码，改用动态格式化文本
+  if (count) {
+    count.textContent = `(${products.length})`; 
+  }
 
   grid.innerHTML = products
     .map((product) => createProductCardHtml(product, favorites.includes(product.id)))
     .join('');
 
-  // 🛠️ 修复核心：重新梳理点击卡片与“查看详情”按钮的事件机制
+  // 重新绑定点击事件
   grid.querySelectorAll('.product-card').forEach((card) => {
     const product = products.find((p) => p.id === Number(card.dataset.id));
     if (!product) return;
 
-    // 点击整张卡片（排除收藏与购物车按钮，但允许点击“查看详情”按钮）
     card.addEventListener('click', (event) => {
       if (event.target.closest('.favorite-btn, .add-cart-btn')) return;
       onOpen(product);
@@ -225,26 +230,35 @@ export function renderProducts(products, options = {}) {
     });
   });
 
-  if (sectionTitle) sectionTitle.textContent = '全部商品';
+  // 顶部区块标题通过多语言字典翻译
+  if (sectionTitle && gridId === 'product-grid') {
+    sectionTitle.setAttribute('data-i18n', 'products');
+    sectionTitle.textContent = t('products');
+  }
 }
 
 /**
- * 构建单个商品卡片 HTML。
+ * 构建单个商品卡片 HTML（完美注入多语言支持数据标签）。
  */
 function createProductCardHtml(product, isFavorite) {
   const inStock = product.stock > 0;
   const tags = [];
-  if (product.isNew) tags.push('<span class="card-tag new">新品</span>');
-  if (product.isHot) tags.push('<span class="card-tag hot">热门</span>');
-  if (product.isPromotion) tags.push('<span class="card-tag promotion">促销</span>');
+  
+  // 将商品标签、库存、按钮文字替换为符合语言字典的动态输出，并注入 data-i18n 属性供无刷新切换使用
+  if (product.isNew) tags.push(`<span class="card-tag new" data-i18n="new">${t('new')}</span>`);
+  if (product.isHot) tags.push(`<span class="card-tag hot" data-i18n="hot">${t('hot')}</span>`);
+  if (product.isPromotion) tags.push(`<span class="card-tag promotion" data-i18n="promotions">${t('promotions')}</span>`);
+
+  const stockKey = inStock ? 'inStock' : 'outOfStock';
+  const actionKey = inStock ? 'viewDetails' : 'outOfStock';
 
   return `
-    <article class="product-card" data-id="${product.id}" tabindex="0" role="button" aria-label="查看 ${product.name} 详情">
+    <article class="product-card" data-id="${product.id}" tabindex="0" role="button" aria-label="${t('viewDetails')} ${product.name}">
       <div class="card-image-wrap">
         <img src="${resolveImagePath(product.image)}" alt="${product.name}" loading="lazy" />
         <div class="card-tags">${tags.join('')}</div>
-        <span class="card-badge ${inStock ? 'in-stock' : 'out-stock'}">${inStock ? '有货' : '缺货'}</span>
-        <button type="button" class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${product.id}" aria-label="${isFavorite ? '取消收藏' : '收藏'}">
+        <span class="card-badge ${inStock ? 'in-stock' : 'out-stock'}" data-i18n="${stockKey}">${t(stockKey)}</span>
+        <button type="button" class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${product.id}" aria-label="${t('favorite')}">
           ${isFavorite ? '❤️' : '🤍'}
         </button>
       </div>
@@ -256,13 +270,12 @@ function createProductCardHtml(product, isFavorite) {
         <h3 class="card-name">${product.name}</h3>
         <p class="card-specs">${product.specs}</p>
         <div class="card-price-row">
-          <span class="card-price">${product.price}<span> 坚戈</span></span>
-          ${product.originalPrice > product.price ? `<span class="card-original-price">${product.originalPrice}</span>` : ''}
+          <span class="card-price">${product.price}<span> ₸</span></span>
+          ${product.originalPrice > product.price ? `<span class="card-original-price">${product.originalPrice} ₸</span>` : ''}
         </div>
         <div class="card-actions">
-          <!-- 🛠️ 保留 class 供样式使用，但在事件中不再拦截它 -->
-          <button type="button" class="card-btn ${inStock ? '' : 'out-stock'}">${inStock ? '查看详情' : '暂时缺货'}</button>
-          <button type="button" class="add-cart-btn" data-id="${product.id}" ${inStock ? '' : 'disabled'} aria-label="加入购物车">
+          <button type="button" class="card-btn ${inStock ? '' : 'out-stock'}" data-i18n="${actionKey}">${t(actionKey)}</button>
+          <button type="button" class="add-cart-btn" data-id="${product.id}" ${inStock ? '' : 'disabled'} aria-label="${t('addToCart')}">
             🛒
           </button>
         </div>
@@ -279,7 +292,14 @@ export function renderList(items, containerId, renderItem) {
   if (!container) return;
 
   if (!items.length) {
-    container.innerHTML = `<p class="empty-state">暂无数据。</p>`;
+    container.innerHTML = `<p class="empty-state" data-i18n="emptyCart">---</p>`;
+    // 延迟获取兜底动态文本防止未初始化
+    const emptyEl = container.querySelector('.empty-state');
+    if (emptyEl) {
+      if (containerId === 'cart-container') emptyEl.textContent = t('emptyCart');
+      else if (containerId === 'favorites-container') emptyEl.textContent = t('emptyFavorites');
+      else emptyEl.textContent = t('emptyOrders');
+    }
     return;
   }
 
