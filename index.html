@@ -63,7 +63,10 @@
             </button>
             <button id="orders-btn" class="icon-btn" aria-label="订单" data-i18n-label="orders">📋</button>
             <button id="admin-btn" class="icon-btn" aria-label="管理" data-i18n-label="admin">⚙️</button>
-            
+
+            <!-- 🌙/☀️ 主题切换按钮：浅色模式显示🌙，深色模式显示☀️ -->
+            <button id="theme-toggle" class="icon-btn" type="button" aria-label="切换主题">🌙</button>
+
             <!-- 🛠️ 【核心改动】移到最顶部的多语言切换胶囊 -->
             <div class="top-lang-picker">
               <select id="lang-select" aria-label="Language Selector">
@@ -198,18 +201,6 @@
           <a id="shop-whatsapp" class="footer-link" href="#" target="_blank">WhatsApp</a>
           <a id="shop-telegram" class="footer-link" href="#" target="_blank">Telegram</a>
           <a id="shop-map" class="footer-link" href="#" target="_blank" data-i18n="googleMapNav">Google Map 导航</a>
-        </div>
-        <div class="footer-block">
-          <h4 data-i18n="settings">设置</h4>
-          <p>
-            <label for="theme-select" data-i18n="themeLabel">主题：</label>
-            <select id="theme-select">
-              <option value="auto" data-i18n="themeAuto">自动</option>
-              <option value="light" data-i18n="themeLight">浅色</option>
-              <option value="dark" data-i18n="themeDark">深色</option>
-            </select>
-          </p>
-          <!-- 🛠️ 原本这里的语言切换被完全安全地移到了头部 -->
         </div>
       </div>
       <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name">阳光便利店</span> SmartShop. <span data-i18n="allRightsReserved">保留所有权利。</span></p>
