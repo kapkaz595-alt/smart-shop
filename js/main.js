@@ -210,7 +210,7 @@ function bindEvents() {
   if (searchInput) {
     searchInput.addEventListener('input', handleSearchInput);
     
-    // 【已修复问题一】监听回车键，并执行立即搜索和过滤
+    // 监听回车键，并执行立即搜索和过滤
     searchInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault(); // 阻止浏览器默认刷新行为
@@ -248,12 +248,11 @@ function bindEvents() {
     langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
   }
 
-  // 【已修复问题三】为 GitHub Pages 静态路径加上 BASE_URL，彻底解决 404
-  const baseUrl = import.meta.env.BASE_URL || '/';
-  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = `${baseUrl}cart.html`);
-  if (favBtn) favBtn.addEventListener('click', () => window.location.href = `${baseUrl}favorites.html`);
-  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = `${baseUrl}orders.html`);
-  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = `${baseUrl}admin/login.html`);
+  // 🛠️【已修复跳转】统一转换为基于当前宿主环境的动态 URL 绝对路径计算，彻底消除 404
+  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = new URL('cart.html', window.location.href).href);
+  if (favBtn) favBtn.addEventListener('click', () => window.location.href = new URL('favorites.html', window.location.href).href);
+  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = new URL('orders.html', window.location.href).href);
+  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = new URL('admin/login.html', window.location.href).href);
 
   // 购物车页面事件
   if (clearCartBtn) clearCartBtn.addEventListener('click', () => {
