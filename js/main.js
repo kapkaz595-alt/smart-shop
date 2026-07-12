@@ -249,9 +249,44 @@ function bindEvents() {
     });
   }
 
+  // ==================== 多语言选择事件核心修改 ====================
+  // 智能兼容：不管是原生下拉菜单还是自定义弹窗列表，全部进行完美捕获。
   if (langSelect) {
-    langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+    // 1. 兼容原有的原生 select 下拉切换逻辑
+    langSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+      location.reload(); // 切换后刷新以应用新语言
+    });
+
+    // 2. 针对自定义弹窗列表的监听：寻找该区域下所有带有 data-lang 属性的按钮/DOM节点
+    const langItems = langSelect.querySelectorAll('[data-lang]');
+    if (langItems.length > 0) {
+      langItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const selectedLang = item.getAttribute('data-lang');
+          if (selectedLang) {
+            setLanguage(selectedLang);
+            location.reload(); // 切换后无缝刷新页面
+          }
+        });
+      });
+    }
   }
+
+  // 如果你的语言弹窗没有包裹在 langSelect 里，而是独立在页面任意地方，执行这一段兜底处理
+  document.querySelectorAll('.lang-option, [data-lang-btn], [data-lang]').forEach(item => {
+    // 防止重复绑定，如果是 langSelect 内部的就不在这里额外处理了
+    if (langSelect && langSelect.contains(item)) return; 
+    
+    item.addEventListener('click', () => {
+      const selectedLang = item.getAttribute('data-lang') || item.getAttribute('data-lang-btn');
+      if (selectedLang) {
+        setLanguage(selectedLang);
+        location.reload();
+      }
+    });
+  });
+  // =============================================================
 
   // 统一转换为基于当前宿主环境的动态 URL 绝对路径计算，彻底消除 404
   if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = new URL('cart.html', window.location.href).href);
