@@ -161,7 +161,10 @@ export async function renderAdminProducts() {
       btn.addEventListener('click', () => {
         const id = Number(btn.dataset.id);
         const action = btn.dataset.action;
-        if (action === 'edit') window.location.href = `product-edit.html?id=${id}`;
+        
+        // 🛠️ 【已修复】修改为当前目录相对路径跳转，完美解决 GitHub Pages 环境下的 404
+        if (action === 'edit') window.location.href = `./product-edit.html?id=${id}`;
+        
         if (action === 'delete') {
           if (confirm('确认删除该商品？')) {
             deleteProduct(id);
