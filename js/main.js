@@ -137,6 +137,12 @@ function handleCategorySelect(category) {
   setState({ activeCategory: category });
   renderCategories(getState().categories, category, handleCategorySelect);
   renderFilteredProducts();
+
+  // 🛠️【新增修复问题二】点击分类（例如饮料、全部商品）后，页面自动平滑滚动到商品展示区
+  const targetGrid = document.getElementById('product-grid');
+  if (targetGrid) {
+    targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 /**
@@ -220,6 +226,10 @@ function bindEvents() {
         commitSearchHistory();          // 写入历史记录
         searchHistoryBox.classList.remove('active');
         searchInput.blur();             // 手机端收起键盘
+        
+        // 🛠️ 搜索时同样自动滚动到商品结果区，方便查看
+        const targetGrid = document.getElementById('product-grid');
+        if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
     
@@ -232,9 +242,13 @@ function bindEvents() {
       });
       searchHistoryBox.classList.add('active');
     });
+    
     searchInput.addEventListener('blur', () => {
-      setTimeout(() => searchHistoryBox.classList.remove('active'), 200);
-      handleSearchBlur();
+      // 🛠️【微调】稍微延迟隐藏，防止阻断点击历史记录，且不干扰正常回车检索
+      setTimeout(() => {
+        searchHistoryBox.classList.remove('active');
+        commitSearchHistory();
+      }, 250);
     });
   }
 
@@ -248,7 +262,7 @@ function bindEvents() {
     langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
   }
 
-  // 🛠️【已修复跳转】统一转换为基于当前宿主环境的动态 URL 绝对路径计算，彻底消除 404
+  // 统一转换为基于当前宿主环境的动态 URL 绝对路径计算，彻底消除 404
   if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = new URL('cart.html', window.location.href).href);
   if (favBtn) favBtn.addEventListener('click', () => window.location.href = new URL('favorites.html', window.location.href).href);
   if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = new URL('orders.html', window.location.href).href);
