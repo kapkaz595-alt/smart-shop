@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>商品编辑 | SmartShop 后台</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/dark.css" />
+    <style>
+      .edit-form { max-width: 600px; margin: 0 auto; background: var(--color-surface); padding: 24px; border-radius: 8px; border: 1px solid var(--color-border); }
+      .form-group { margin-bottom: 20px; }
+      .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+      .form-control { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-bg); color: var(--color-text); font-size: 14px; }
+      .form-control:focus { border-color: var(--color-primary); outline: none; }
+      .checkbox-group { display: flex; gap: 20px; margin-top: 10px; }
+      .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+      .preview-img { max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 6px; margin-top: 10px; display: none; border: 1px solid var(--color-border); }
+      .form-actions { display: flex; gap: 12px; margin-top: 30px; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="header-top">
+          <a href="../index.html" class="brand">
+            <div class="brand-logo">⚙️</div>
+            <div class="brand-text">
+              <h1 class="brand-name">SmartShop</h1>
+              <p class="brand-slogan">商品编辑</p>
+            </div>
+          </a>
+          <div class="header-actions">
+            <button id="back-btn" type="button" class="btn btn-secondary">返回列表</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="page-section container">
+        <h2 id="page-action-title" class="page-title">📦 新增商品</h2>
+        
+        <form id="product-form" class="edit-form">
+          <div class="form-group">
+            <label for="p-name">商品名称 *</label>
+            <input type="text" id="p-name" class="form-control" required placeholder="例如：新鲜大苹果" />
+          </div>
+
+          <div class="form-group">
+            <label for="p-category">分类 *</label>
+            <input type="text" id="p-category" class="form-control" required placeholder="例如：水果蔬菜" />
+          </div>
+
+          <div class="form-group">
+            <label for="p-price">销售价格 *</label>
+            <input type="number" id="p-price" class="form-control" step="0.01" required placeholder="0.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="p-stock">商品库存 *</label>
+            <input type="number" id="p-stock" class="form-control" required placeholder="100" />
+          </div>
+
+          <div class="form-group">
+            <label for="p-image-file">商品主图 *</label>
+            <input type="file" id="p-image-file" accept="image/*" class="form-control" />
+            <input type="hidden" id="p-image-url" />
+            <img id="p-preview" class="preview-img" alt="图片预览" />
+          </div>
+
+          <div class="form-group">
+            <label for="p-desc">商品描述</label>
+            <textarea id="p-desc" class="form-control" rows="4" placeholder="请输入商品的详细介绍..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>商品标签/促销</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" id="p-is-new" /> 新品✨</label>
+              <label class="checkbox-label"><input type="checkbox" id="p-is-hot" /> 热销🔥</label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn" class="btn btn-primary">保存商品</button>
+            <button type="button" id="cancel-btn" class="btn btn-secondary">取消</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module">
+      import { supabase } from '../js/supabaseClient.js';
+      import { checkAdmin, addProduct, updateProduct, uploadImage } from '../js/admin.js';
+      import { showToast } from '../js/utils.js';
+
+      // 获取 URL 参数中的商品 ID (如果有就是编辑模式，没有就是新增模式)
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id');
+      const isEditMode = !!productId;
+
+      // DOM 元素
+      const form = document.getElementById('product-form');
+      const pageTitle = document.getElementById('page-action-title');
+      const fileInput = document.getElementById('p-image-file');
+      const urlInput = document.getElementById('p-image-url');
+      const previewImg = document.getElementById('p-preview');
+
+      // 路由重定向助手
+      function goBack() {
+        window.location.href = new URL('dashboard.html', window.location.href).href;
+      }
+
+      async function initPage() {
+        // 1. 权限拦截
+        const isAdmin = await checkAdmin();
+        if (!isAdmin) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // 2. 绑定头部和取消按钮
+        document.getElementById('back-btn').addEventListener('click', goBack);
+        document.getElementById('cancel-btn').addEventListener('click', goBack);
+
+        // 3. 监听图片上传，实时预览并上传到 Supabase Storage
+        fileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          try {
+            showToast('图片上传中...');
+            const publicUrl = await uploadImage(file);
+            urlInput.value = publicUrl;
+            previewImg.src = publicUrl;
+            previewImg.style.display = 'block';
+            showToast('图片上传成功！');
+          } catch (err) {
+            showToast('图片上传失败，请重试');
+          }
+        });
+
+        // 4. 如果是编辑模式，回显 Supabase 数据库中的商品数据
+        if (isEditMode) {
+          pageTitle.innerText = '📝 编辑商品';
+          try {
+            const { data: p, error } = await supabase
+              .from('products')
+              .eq('id', productId)
+              .single();
+
+            if (error) throw error;
+            if (p) {
+              document.getElementById('p-name').value = p.name;
+              document.getElementById('p-category').value = p.category;
+              document.getElementById('p-price').value = p.price;
+              document.getElementById('p-stock').value = p.stock;
+              document.getElementById('p-desc').value = p.description || '';
+              document.getElementById('p-is-new').checked = !!p.is_new;
+              document.getElementById('p-is-hot').checked = !!p.is_hot;
+              
+              if (p.image) {
+                urlInput.value = p.image;
+                previewImg.src = p.image;
+                previewImg.style.display = 'block';
+              }
+            }
+          } catch (err) {
+            showToast('获取商品详情失败: ' + err.message);
+          }
+        }
+
+        // 5. 表单提交逻辑
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const productData = {
+            name: document.getElementById('p-name').value,
+            category: document.getElementById('p-category').value,
+            price: parseFloat(document.getElementById('p-price').value),
+            stock: parseInt(document.getElementById('p-stock').value),
+            image: urlInput.value || 'https://via.placeholder.com/150', // 默认占位图
+            description: document.getElementById('p-desc').value,
+            isNew: document.getElementById('p-is-new').checked,
+            isHot: document.getElementById('p-is-hot').checked,
+          };
+
+          if (isEditMode) {
+            const success = await updateProduct(Number(productId), productData);
+            if (success) goBack();
+          } else {
+            await addProduct(productData);
+            goBack();
+          }
+        });
+      }
+
+      initPage();
+    </script>
+  </body>
+</html>
