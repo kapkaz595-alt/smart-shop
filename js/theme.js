@@ -1,33 +1,34 @@
 // ==========================================================================
 // theme.js
-// 主题切换：浅色 / 深色 / 跟随系统。持久化到 localStorage。
+// 主题切换：浅色 / 深色。持久化到 localStorage。
 // ==========================================================================
 
 import { KEYS, getJson, setJson } from './storage.js';
 import { setState } from './state.js';
 
-const DARK_QUERY = '(prefers-color-scheme: dark)';
-
 /**
- * 获取当前主题。
+ * 获取当前主题，默认浅色。
+ * @returns {'light' | 'dark'}
  */
 export function getTheme() {
-  return getJson(KEYS.THEME, 'auto');
+  const saved = getJson(KEYS.THEME, 'light');
+  return saved === 'dark' ? 'dark' : 'light';
 }
 
 /**
- * 应用主题。
- * @param {string} theme 'light' | 'dark' | 'auto'
+ * 应用主题：切换 html 的 dark class，更新按钮图标，写入 localStorage 和 state。
+ * @param {'light' | 'dark'} theme
  */
 export function applyTheme(theme) {
   const html = document.documentElement;
-  html.classList.remove('dark');
+  const isDark = theme === 'dark';
 
-  if (theme === 'dark') {
-    html.classList.add('dark');
-  } else if (theme === 'auto') {
-    const prefersDark = window.matchMedia(DARK_QUERY).matches;
-    if (prefersDark) html.classList.add('dark');
+  html.classList.toggle('dark', isDark);
+
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    // 浅色模式显示🌙（点击后进入深色），深色模式显示☀️（点击后进入浅色）
+    btn.textContent = isDark ? '☀️' : '🌙';
   }
 
   setJson(KEYS.THEME, theme);
@@ -35,29 +36,24 @@ export function applyTheme(theme) {
 }
 
 /**
- * 切换主题。
- * @param {string} theme
+ * 设置主题（供外部按需直接指定）。
+ * @param {'light' | 'dark'} theme
  */
 export function setTheme(theme) {
-  applyTheme(theme);
+  applyTheme(theme === 'dark' ? 'dark' : 'light');
 }
 
 /**
- * 监听系统主题变化。
+ * 在浅色 / 深色之间切换一次。
  */
-export function watchSystemTheme() {
-  const media = window.matchMedia(DARK_QUERY);
-  media.addEventListener('change', () => {
-    const current = getTheme();
-    if (current === 'auto') applyTheme('auto');
-  });
+export function toggleTheme() {
+  const next = getTheme() === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
 }
 
 /**
- * 初始化主题。
+ * 初始化主题：读取上次保存的选择并应用。
  */
 export function initTheme() {
   applyTheme(getTheme());
-  watchSystemTheme();
 }
-
