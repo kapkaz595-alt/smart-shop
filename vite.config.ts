@@ -1,7 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 const rawPort = process.env.PORT;
@@ -29,11 +27,38 @@ if (!basePath) {
 const rootDir = path.resolve(import.meta.dirname);
 
 /**
- * 自定义插件：将根目录的 data/、images/ 静态目录在 dev 中直接提供，
- * 并在 build 时复制到输出目录。这样项目可以保持约定的顶层目录结构
- *（data/、images/）而不受 Vite 默认 publicDir 只能为单个目录的限制。
+ * 递归扫描项目根目录下所有 .html 文件，自动生成多页面构建入口。
+ * 排除 node_modules / dist / .git / .github 等无关目录。
+ * 这样以后新增页面（比如 admin/xxx.html）不用手动改配置。
  */
-function staticDirsPlugin(root: string, dirs: string[]) {
+function findHtmlEntries(dir: string, base = dir): Record<string, string> {
+  const entries: Record<string, string> = {};
+  const skip = new Set(['node_modules', 'dist', '.git', '.github']);
+
+  for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (skip.has(item.name)) continue;
+    const fullPath = path.join(dir, item.name);
+
+    if (item.isDirectory()) {
+      Object.assign(entries, findHtmlEntries(fullPath, base));
+    } else if (item.name.endsWith('.html')) {
+      const relative = path
+        .relative(base, fullPath)
+        .replace(/\.html$/, '')
+        .replace(/[\\/]/g, '-');
+      entries[relative || 'index'] = fullPath;
+    }
+  }
+  return entries;
+}
+
+/**
+ * 自定义插件：把不会被 HTML/JS 静态引用分析到的文件
+ *（sw.js 是运行时通过 navigator.serviceWorker.register() 动态注册的，
+ * Vite 无法通过静态分析发现它）以及 data/、images/ 整个目录，
+ * 原样复制到构建输出目录。
+ */
+function staticAssetsPlugin(root: string, files: string[], dirs: string[]) {
   const copyDir = (src: string, dest: string) => {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
@@ -49,45 +74,23 @@ function staticDirsPlugin(root: string, dirs: string[]) {
     }
   };
 
-  const mimeTypes: Record<string, string> = {
-    '.json': 'application/json',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.gif': 'image/gif',
-    '.ico': 'image/x-icon',
-  };
-
   return {
-    name: 'smartshop-static-dirs',
-    configureServer(server: any) {
-      server.middlewares.use((req: any, res: any, next: any) => {
-        const url = req.url || '';
-        for (const dir of dirs) {
-          const prefix = `/${dir}/`;
-          if (url.startsWith(prefix)) {
-            const filePath = path.join(root, dir, url.slice(prefix.length));
-            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-              const ext = path.extname(filePath).toLowerCase();
-              const contentType = mimeTypes[ext] || 'application/octet-stream';
-              res.setHeader('Content-Type', contentType);
-              fs.createReadStream(filePath).pipe(res);
-              return;
-            }
-          }
-        }
-        next();
-      });
-    },
+    name: 'smartshop-static-assets',
     writeBundle() {
       const outDir = path.resolve(root, 'dist/public');
+
+      for (const file of files) {
+        const src = path.join(root, file);
+        if (fs.existsSync(src)) {
+          fs.copyFileSync(src, path.join(outDir, file));
+        }
+      }
+
       for (const dir of dirs) {
         const src = path.join(root, dir);
-        const dest = path.join(outDir, dir);
-        if (!fs.existsSync(src)) continue;
-        copyDir(src, dest);
+        if (fs.existsSync(src)) {
+          copyDir(src, path.join(outDir, dir));
+        }
       }
     },
   };
@@ -95,40 +98,20 @@ function staticDirsPlugin(root: string, dirs: string[]) {
 
 export default defineConfig({
   base: basePath,
+  root: rootDir,
   plugins: [
-    react(),
-    tailwindcss(),
-    staticDirsPlugin(rootDir, ['data', 'images']),
-    ...(process.env.NODE_ENV !== 'production' &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import('@replit/vite-plugin-cartographer').then((m) =>
-            m.cartographer({
-              root: path.resolve(import.meta.dirname, '..'),
-            }),
-          ),
-          await import('@replit/vite-plugin-dev-banner').then((m) =>
-            m.devBanner(),
-          ),
-        ]
-      : []),
+    staticAssetsPlugin(
+      rootDir,
+      ['sw.js', 'manifest.json', 'components.json', 'favicon.svg'],
+      ['data', 'images'],
+    ),
   ],
-  resolve: {
-    alias: {
-      '@': path.resolve(import.meta.dirname, 'src'),
-      '@assets': path.resolve(
-        import.meta.dirname,
-        '..',
-        '..',
-        'attached_assets',
-      ),
-    },
-    dedupe: ['react', 'react-dom'],
-  },
-  root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, 'dist/public'),
+    outDir: path.resolve(rootDir, 'dist/public'),
     emptyOutDir: true,
+    rollupOptions: {
+      input: findHtmlEntries(rootDir),
+    },
   },
   server: {
     port,
