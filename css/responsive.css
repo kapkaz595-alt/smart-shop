@@ -234,4 +234,123 @@
     height: 36px;
   }
 }
+/* ==========================================================
+   SmartShop V2 Mobile Responsive Enhancement
+   建议放在 responsive.css 最后
+   ========================================================== */
+
+@media (max-width: 640px) {
+
+  /* Header 改为 Grid，避免搜索框和语言切换互相挤压 */
+  .header-top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+  }
+
+  /* 搜索框独占第二行 */
+  .search-wrap {
+    order: 2;
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    min-width: 0;
+  }
+
+  /* Header 右侧按钮 */
+  .header-actions {
+    order: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  /* 商品标题最多显示两行 */
+  .card-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: 2.8em;
+  }
+
+  /* 页面标题避免超长 */
+  .section-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 商品图片统一比例 */
+  .card-image img,
+  .product-image img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  /* Modal 内容过长可滚动 */
+  .modal-box {
+    overflow-y: auto;
+  }
+
+  /* Footer 手机端居中 */
+  .footer-content {
+    text-align: center;
+  }
+
+  /* 语言选择器缩小 */
+  #lang-select,
+  .top-lang-picker select {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+    max-width: 120px;
+  }
+}
+
+/* ==========================================================
+   超小屏（380px 以下）
+   ========================================================== */
+
+@media (max-width: 380px) {
+
+  /* 所有按钮符合移动端点击规范 */
+  .card-btn,
+  .add-cart-btn,
+  .checkout-btn,
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 商品操作按钮上下排列 */
+  .card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .add-cart-btn,
+  .card-btn {
+    width: 100%;
+  }
+
+  /* Header 更紧凑 */
+  .header-top {
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  /* 搜索框字体稍小 */
+  .search-input {
+    font-size: 14px;
+  }
+
+  /* 商品名称字体略缩小 */
+  .card-name {
+    font-size: 13px;
+  }
+}
+
 
