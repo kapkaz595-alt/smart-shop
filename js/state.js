@@ -20,7 +20,7 @@ const state = {
   searchHistory: [],      // 搜索历史
   orders: [],             // 订单
   theme: 'auto',          // 主题
-  language: 'zh-CN',      // 语言
+  language: 'kk',         // 【已修改】默认语言改为哈萨克语 (kk)
   isAdmin: false,         // 是否管理员登录
 };
 
@@ -66,9 +66,8 @@ export function initPersistedState() {
     searchHistory: getJson(KEYS.SEARCH_HISTORY, []),
     orders: getJson(KEYS.ORDERS, []),
     theme: getJson(KEYS.THEME, 'auto'),
-    language: getJson(KEYS.LANGUAGE, 'zh-CN'),
+    language: getJson(KEYS.LANGUAGE, 'kk'), // 【已修改】找不到缓存时，默认读取哈萨克语 (kk)
     isAdmin: getJson(KEYS.ADMIN_SESSION, false),
   };
   setState(patch);
 }
-
