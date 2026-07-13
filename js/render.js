@@ -119,7 +119,7 @@ export function renderAnnouncements(announcements) {
 }
 
 /**
- * 渲染分类导航按钮。
+ * 渲染分类导航按钮 - 优化版
  */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
@@ -127,24 +127,40 @@ export function renderCategories(categories, activeCategory, onSelect) {
 
   const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
 
+  // 清空并重新渲染
   list.innerHTML = items
-    .map(
-      (cat) => `
-      <li>
-        <button
-          type="button"
-          class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}"
-          data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}"
-        >
-          <span class="category-icon">${cat.icon || ''}</span> ${cat.name}
-        </button>
-      </li>
-    `,
-    )
+    .map((cat) => {
+      const isActive = cat.name === activeCategory || 
+                      (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL);
+      const categoryValue = cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name;
+      
+      return `
+        <li>
+          <button
+            type="button"
+            class="category-btn ${isActive ? 'active' : ''}"
+            data-category="${categoryValue}"
+          >
+            <span class="category-icon">${cat.icon || ''}</span> 
+            ${cat.name}
+          </button>
+        </li>
+      `;
+    })
     .join('');
 
+  // 重新绑定事件（使用事件委托更好，但这里先保持简单）
   list.querySelectorAll('.category-btn').forEach((btn) => {
-    btn.addEventListener('click', () => onSelect(btn.dataset.category));
+    // 先移除旧事件防止重复绑定
+    btn.replaceWith(btn.cloneNode(true));
+  });
+
+  // 重新添加事件
+  list.querySelectorAll('.category-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const category = btn.dataset.category;
+      onSelect(category);
+    });
   });
 }
 
