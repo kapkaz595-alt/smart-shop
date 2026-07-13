@@ -6,7 +6,7 @@
 import { resolveImagePath } from './utils.js';
 import { t } from './language.js';
 
-const ALL_CATEGORIES_LABEL = '全部商品';
+export const ALL_CATEGORIES_LABEL = '全部商品';
 
 export function renderShopHeader(shop) {
   if (!shop) return;
