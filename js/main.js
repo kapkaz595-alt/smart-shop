@@ -1,5 +1,5 @@
 // ==========================================================================
-// main.js - SmartShop 前端入口 (实时多语言切换版 - 已修复闪烁)
+// main.js - SmartShop 前端入口 (已优化分类点击 + 搜索防抖)
 // ==========================================================================
 
 import { fetchHomeData } from './api.js';
@@ -23,8 +23,16 @@ import { addToCart, loadCart, renderCartSummary } from './cart.js';
 import { toggleFavorite, loadFavorites } from './favorite.js';
 import { getHotProducts, getRecommendedProducts, getNewProducts, getPromotionProducts } from './recommend.js';
 
+// 防抖函数
+function debounce(fn, delay = 300) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
 const searchInput = document.getElementById('search-input');
-const searchHistoryBox = document.getElementById('search-history');
 const cartBtn = document.getElementById('cart-btn');
 const favBtn = document.getElementById('favorites-btn');
 const ordersBtn = document.getElementById('orders-btn');
@@ -36,55 +44,68 @@ async function init() {
     initTheme();
     initPersistedState();
     
-    // 初始化语言 (读取 localStorage，不再强制重置)
     initLanguage();
     if (langSelect) langSelect.value = getLanguage();
 
     const { products, categories, shop, banners, announcements } = await fetchHomeData();
-    setState({ products, categories, shop, banners, announcements, activeCategory: ALL_CATEGORIES_LABEL });
+    
+    setState({ 
+      products, 
+      categories, 
+      shop, 
+      banners, 
+      announcements, 
+      activeCategory: ALL_CATEGORIES_LABEL,
+      searchTerm: ''
+    });
 
     renderShopHeader(shop);
     renderFooter(shop);
     renderBanners(banners);
     renderAnnouncements(announcements);
+    
+    // 初始渲染分类
     renderCategories(categories, ALL_CATEGORIES_LABEL, handleCategorySelect);
+    
     renderAllSections();
     bindEvents();
     renderCartSummary(loadCart());
+    
   } catch (error) {
     console.error('初始化失败：', error);
   }
 }
 
 function bindEvents() {
-  // 搜索逻辑
+  // 搜索逻辑 - 使用防抖优化
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => { setState({ searchTerm: e.target.value }); renderFilteredProducts(); });
+    searchInput.addEventListener('input', debounce((e) => {
+      setState({ searchTerm: e.target.value });
+      renderFilteredProducts();
+    }, 250));
   }
 
-  // 【核心修改】实时多语言切换逻辑
+  // 语言切换
   if (langSelect) {
     langSelect.addEventListener('change', (e) => {
       const selectedLang = e.target.value;
-      setLanguage(selectedLang); // 保存设置，不会刷新页面
+      setLanguage(selectedLang);
       
-      // 1. 重新渲染整个页面内容（DOM 实时更新）
       renderAllSections();
       
-      // 2. 刷新所有标记了 data-i18n 的静态文案
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const translation = t(key);
         if (translation) {
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = translation;
-          else el.textContent = translation;
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = translation;
+          } else {
+            el.textContent = translation;
+          }
         }
       });
       
-      // 3. 更新页头文字
       renderShopHeader(getState().shop);
-      
-      // 4. 更新分类导航
       renderCategories(getState().categories, getState().activeCategory, handleCategorySelect);
     });
   }
@@ -124,22 +145,4 @@ function renderSection(gridId, products) {
   renderProducts(products, { 
     onOpen: handleOpenProduct, 
     onToggleFavorite: handleToggleFavorite, 
-    onAddToCart: handleAddToCart, 
-    favorites: getState().favorites, 
-    gridId 
-  });
-}
-
-function handleCategorySelect(category) {
-  setState({ activeCategory: category });
-  renderCategories(getState().categories, category, handleCategorySelect);
-  renderFilteredProducts();
-}
-
-function handleOpenProduct(product) { recordView(product); openProduct(product); }
-function handleToggleFavorite(product) { toggleFavorite(product.id); renderAllSections(); }
-function handleAddToCart(product, event) { if (event) event.stopPropagation(); addToCart(product, 1); }
-
-document.addEventListener('DOMContentLoaded', init);
-
-export { handleOpenProduct, handleToggleFavorite, handleAddToCart, renderFilteredProducts, handleCategorySelect };
+    onAddToCart: handleAdd
