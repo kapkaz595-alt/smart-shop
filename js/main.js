@@ -1,8 +1,7 @@
 // ==========================================================================
-// main.js - SmartShop 前端入口
+// main.js - SmartShop 前端入口 (带降级方案)
 // ==========================================================================
 
-import { fetchHomeData } from './api.js';
 import { initPersistedState, getState, setState, subscribe } from './state.js';
 import { initTheme } from './theme.js';
 import { initLanguage, setLanguage, getLanguage, t } from './language.js';
@@ -16,11 +15,11 @@ import {
   ALL_CATEGORIES_LABEL,
 } from './render.js';
 import { searchProducts } from './search.js';
-import { recordSearch, loadSearchHistory, renderSearchHistory, recordView } from './history.js';
+import { recordView } from './history.js';
 import { filterProducts, filterPromotions, filterNewProducts, filterHotProducts } from './filter.js';
 import { openProduct } from './modal.js';
 import { addToCart, loadCart, renderCartSummary } from './cart.js';
-import { toggleFavorite, loadFavorites } from './favorite.js';
+import { toggleFavorite } from './favorite.js';
 import { getHotProducts, getRecommendedProducts, getNewProducts, getPromotionProducts } from './recommend.js';
 
 // 防抖函数
@@ -75,23 +74,32 @@ async function init() {
     initLanguage();
     if (langSelect) langSelect.value = getLanguage();
 
-    const { products, categories, shop, banners, announcements } = await fetchHomeData();
+    // 加载本地JSON数据 (不依赖Supabase)
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    
+    const [categoriesRes, shopRes, bannersRes, announcementsRes, productsRes] = await Promise.all([
+      fetch(`${baseUrl}data/categories.json`).then(r => r.json()).catch(() => []),
+      fetch(`${baseUrl}data/shop.json`).then(r => r.json()).catch(() => ({})),
+      fetch(`${baseUrl}data/banner.json`).then(r => r.json()).catch(() => []),
+      fetch(`${baseUrl}data/announcement.json`).then(r => r.json()).catch(() => []),
+      fetch(`${baseUrl}data/products.json`).then(r => r.json()).catch(() => []),
+    ]);
     
     setState({ 
-      products, 
-      categories, 
-      shop, 
-      banners, 
-      announcements, 
+      products: productsRes || [], 
+      categories: categoriesRes || [], 
+      shop: shopRes, 
+      banners: bannersRes || [], 
+      announcements: announcementsRes || [], 
       activeCategory: ALL_CATEGORIES_LABEL,
       searchTerm: ''
     });
 
-    renderShopHeader(shop);
-    renderFooter(shop);
-    renderBanners(banners);
-    renderAnnouncements(announcements);
-    renderCategories(categories, ALL_CATEGORIES_LABEL, handleCategorySelect);
+    renderShopHeader(shopRes);
+    renderFooter(shopRes);
+    renderBanners(bannersRes);
+    renderAnnouncements(announcementsRes);
+    renderCategories(categoriesRes || [], ALL_CATEGORIES_LABEL, handleCategorySelect);
     
     renderAllSections();
     bindEvents();
