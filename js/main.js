@@ -76,6 +76,47 @@ async function init() {
   }
 }
 
+// ========== 事件处理函数 ==========
+
+/**
+ * 处理分类点击事件
+ */
+function handleCategorySelect(category) {
+  setState({ activeCategory: category });
+  renderFilteredProducts();
+}
+
+/**
+ * 处理商品打开（弹窗）
+ */
+function handleOpenProduct(product) {
+  recordView(product.id);
+  openProduct(product);
+}
+
+/**
+ * 处理收藏切换
+ */
+function handleToggleFavorite(product) {
+  toggleFavorite(product.id);
+  const state = getState();
+  renderFilteredProducts();
+  renderAllSections();
+}
+
+/**
+ * 处理加入购物车
+ */
+function handleAddToCart(product, event) {
+  addToCart(product);
+  if (event) {
+    event.target.textContent = '✓';
+    setTimeout(() => {
+      event.target.textContent = '🛒';
+    }, 1500);
+  }
+}
+
 function bindEvents() {
   // 搜索逻辑 - 使用防抖优化
   if (searchInput) {
@@ -145,4 +186,11 @@ function renderSection(gridId, products) {
   renderProducts(products, { 
     onOpen: handleOpenProduct, 
     onToggleFavorite: handleToggleFavorite, 
-    onAddToCart: handleAdd
+    onAddToCart: handleAddToCart, 
+    gridId,
+    favorites: getState().favorites
+  });
+}
+
+// 初始化
+init();
