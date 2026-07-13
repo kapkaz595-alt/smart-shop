@@ -1,5 +1,6 @@
 // ==========================================================================
-// render.js - 补全导出版
+// render.js
+// 修复版：还原了广告和公告的完整 HTML 结构，确保 CSS 能正常加载
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
@@ -16,20 +17,37 @@ export function renderShopHeader(shop) {
   document.title = `${shop.name} | SmartShop`;
 }
 
+// 还原了带标题和副标题的完整结构
 export function renderBanners(banners) {
   const track = document.getElementById('banner-track');
+  const dots = document.getElementById('banner-dots');
   if (!track || !banners) return;
+  
   track.innerHTML = banners.map((banner, index) => `
-    <div class="banner-slide ${index === 0 ? 'active' : ''}">
-      <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" />
+    <div class="banner-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+      <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" loading="lazy" />
+      <div class="banner-content">
+        <h2 class="banner-title">${banner.title}</h2>
+        <p class="banner-subtitle">${banner.subtitle}</p>
+      </div>
     </div>`).join('');
+    
+  if (dots) {
+    dots.innerHTML = banners.map((_, index) => `
+      <button class="banner-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></button>`).join('');
+  }
 }
 
+// 还原了公告的 Badge 和文字结构
 export function renderAnnouncements(announcements) {
   const track = document.getElementById('announcement-track');
   if (!track || !announcements) return;
-  track.innerHTML = announcements.map(item => `
-    <div class="announcement-item">${item.content}</div>`).join('');
+  const active = announcements.filter((item) => item.active);
+  track.innerHTML = active.map((item) => `
+    <div class="announcement-item">
+      <span class="badge">${item.type === 'promotion' ? t('promotions') : item.type === 'new' ? t('new') : t('home')}</span>
+      <span>${item.title}：${item.content}</span>
+    </div>`).join('');
 }
 
 export function renderCategories(categories, activeCategory, onSelect) {
@@ -37,11 +55,11 @@ export function renderCategories(categories, activeCategory, onSelect) {
   if (!list) return;
   const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
   list.innerHTML = items.map((cat) => `
-    <li>
-      <button type="button" class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}" data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}">
-        ${cat.name}
-      </button>
-    </li>`).join('');
+      <li>
+        <button type="button" class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}" data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}">
+          ${cat.name}
+        </button>
+      </li>`).join('');
   list.querySelectorAll('.category-btn').forEach((btn) => btn.addEventListener('click', () => onSelect(btn.dataset.category)));
 }
 
