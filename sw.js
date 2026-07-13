@@ -1,6 +1,6 @@
 // SmartShop Service Worker
 // 提供简单的离线缓存：静态资源、页面骨架、图片。
-const CACHE_NAME = 'smartshop-v1';
+const CACHE_NAME = 'smartshop-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -36,16 +36,34 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+
+  // HTML 和 JS 这类经常更新的文件：网络优先，网络失败才退回缓存
+  if (url.match(/\.(html|js)$/) || event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 图片、CSS、JSON 这类不常变的静态资源：缓存优先，加快加载速度
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
-        if (response && response.status === 200 && response.url.match(/\.(jpg|png|webp|json|css|js|html)$/)) {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      }).catch(() => cached);
+      });
     })
   );
 });
-
