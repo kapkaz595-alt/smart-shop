@@ -161,10 +161,10 @@ export async function renderAdminProducts() {
       btn.addEventListener('click', () => {
         const id = Number(btn.dataset.id);
         const action = btn.dataset.action;
-        
+
         // 🛠️ 【已修复】修改为当前目录相对路径跳转，完美解决 GitHub Pages 环境下的 404
         if (action === 'edit') window.location.href = `./product-edit.html?id=${id}`;
-        
+
         if (action === 'delete') {
           if (confirm('确认删除该商品？')) {
             deleteProduct(id);
@@ -180,6 +180,7 @@ export async function renderAdminProducts() {
 /**
  * 新增商品（保存到 Supabase 数据库）。
  * @param {Object} product 前端传入的驼峰命名商品对象
+ * @returns {Promise<boolean>} 是否成功
  */
 export async function addProduct(product) {
   const rowData = mapProductToRow(product);
@@ -190,27 +191,32 @@ export async function addProduct(product) {
 
   if (error) {
     showToast(`添加商品失败：${error.message}`);
-    return;
+    console.error('Supabase 添加商品失败详情:', error);
+    return false;
   }
 
   showToast('商品添加成功！');
   renderAdminProducts();
+  return true;
 }
 
 /**
  * 编辑/更新商品。
  * @param {number} id 
  * @param {Object} product 
+ * @returns {Promise<boolean>} 是否成功
  */
 export async function updateProduct(id, product) {
   const rowData = mapProductToRow(product);
   const { data, error } = await supabase
     .from('products')
     .update(rowData)
-    .eq('id', id);
+    .eq('id', id)
+    .select();
 
   if (error) {
     showToast(`更新商品失败：${error.message}`);
+    console.error('Supabase 更新商品失败详情:', error);
     return false;
   }
 
