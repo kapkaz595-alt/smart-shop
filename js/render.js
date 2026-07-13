@@ -1,6 +1,6 @@
 // ==========================================================================
 // render.js
-// 修复版：还原了广告和公告的完整 HTML 结构，确保 CSS 能正常加载
+// 负责把数据渲染成 DOM：店铺信息、轮播、公告、分类、商品卡片。
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
@@ -8,107 +8,287 @@ import { t } from './language.js';
 
 export const ALL_CATEGORIES_LABEL = '全部商品';
 
+/**
+ * 渲染页头店铺信息。
+ */
 export function renderShopHeader(shop) {
   if (!shop) return;
+
   const logo = document.getElementById('shop-logo');
   const name = document.getElementById('shop-name');
+  const slogan = document.getElementById('shop-slogan');
+  const phone = document.getElementById('shop-phone');
+  const hours = document.getElementById('shop-hours');
+  const address = document.getElementById('shop-address');
+  const whatsapp = document.getElementById('shop-whatsapp');
+  const telegram = document.getElementById('shop-telegram');
+  const map = document.getElementById('shop-map');
+
   if (logo) logo.textContent = shop.logo || '☀️';
   if (name) name.textContent = shop.name || 'SmartShop';
+  if (slogan) slogan.textContent = shop.description || '';
+  if (phone) {
+    phone.textContent = `☎ ${shop.phone}`;
+    phone.href = `tel:${shop.phone}`;
+  }
+  if (hours) hours.textContent = `🕒 ${shop.hours}`;
+  if (address) address.textContent = `📍 ${shop.address}`;
+  if (whatsapp) whatsapp.href = `https://wa.me/${shop.whatsapp}`;
+  if (telegram) telegram.href = `https://t.me/${shop.telegram}`;
+  if (map) map.href = shop.googleMap || '#';
+
   document.title = `${shop.name} | SmartShop`;
 }
 
-// 还原了带标题和副标题的完整结构
+/**
+ * 渲染轮播广告。
+ */
 export function renderBanners(banners) {
   const track = document.getElementById('banner-track');
   const dots = document.getElementById('banner-dots');
-  if (!track || !banners) return;
-  
-  track.innerHTML = banners.map((banner, index) => `
-    <div class="banner-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-      <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" loading="lazy" />
-      <div class="banner-content">
-        <h2 class="banner-title">${banner.title}</h2>
-        <p class="banner-subtitle">${banner.subtitle}</p>
+  if (!track || !dots || !banners || !banners.length) return;
+
+  track.innerHTML = banners
+    .map(
+      (banner, index) => `
+      <div class="banner-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+        <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" loading="lazy" />
+        <div class="banner-content">
+          <h2 class="banner-title">${banner.title}</h2>
+          <p class="banner-subtitle">${banner.subtitle}</p>
+        </div>
       </div>
-    </div>`).join('');
-    
-  if (dots) {
-    dots.innerHTML = banners.map((_, index) => `
-      <button class="banner-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></button>`).join('');
-  }
+    `,
+    )
+    .join('');
+
+  dots.innerHTML = banners
+    .map(
+      (_, index) => `
+      <button class="banner-dot ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="Slide ${index + 1}"></button>
+    `,
+    )
+    .join('');
+
+  startBannerCarousel(banners.length);
 }
 
-// 还原了公告的 Badge 和文字结构
+function startBannerCarousel(count) {
+  let current = 0;
+  const slides = document.querySelectorAll('.banner-slide');
+  const dots = document.querySelectorAll('.banner-dot');
+  if (!slides.length) return;
+
+  function show(index) {
+    current = index;
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+  }
+
+  function next() {
+    show((current + 1) % count);
+  }
+
+  dots.forEach((dot) => {
+    dot.addEventListener('click', () => show(Number(dot.dataset.index)));
+  });
+
+  setInterval(next, 5000);
+}
+
+/**
+ * 渲染公告栏。
+ */
 export function renderAnnouncements(announcements) {
   const track = document.getElementById('announcement-track');
-  if (!track || !announcements) return;
+  if (!track || !announcements || !announcements.length) return;
+
   const active = announcements.filter((item) => item.active);
-  track.innerHTML = active.map((item) => `
-    <div class="announcement-item">
-      <span class="badge">${item.type === 'promotion' ? t('promotions') : item.type === 'new' ? t('new') : t('home')}</span>
-      <span>${item.title}：${item.content}</span>
-    </div>`).join('');
+  track.innerHTML = active
+    .map(
+      (item) => `
+      <div class="announcement-item">
+        <span class="badge">
+          ${item.type === 'promotion' ? t('promotions') : item.type === 'new' ? t('new') : t('home')}
+        </span>
+        <span>${item.title}：${item.content}</span>
+      </div>
+    `,
+    )
+    .join('');
 }
 
+/**
+ * 渲染分类导航按钮。
+ */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
   if (!list) return;
+
   const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
-  list.innerHTML = items.map((cat) => `
+
+  list.innerHTML = items
+    .map(
+      (cat) => `
       <li>
-        <button type="button" class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}" data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}">
-          ${cat.name}
+        <button
+          type="button"
+          class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}"
+          data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}"
+        >
+          <span class="category-icon">${cat.icon || ''}</span> ${cat.name}
         </button>
-      </li>`).join('');
-  list.querySelectorAll('.category-btn').forEach((btn) => btn.addEventListener('click', () => onSelect(btn.dataset.category)));
+      </li>
+    `,
+    )
+    .join('');
+
+  list.querySelectorAll('.category-btn').forEach((btn) => {
+    btn.addEventListener('click', () => onSelect(btn.dataset.category));
+  });
 }
 
+/**
+ * 渲染商品卡片网格。
+ */
 export function renderProducts(products, options = {}) {
-  const grid = document.getElementById(options.gridId || 'product-grid');
+  const gridId = options.gridId || 'product-grid';
+  const grid = document.getElementById(gridId);
   if (!grid) return;
-  const { onOpen, onToggleFavorite, onAddToCart, favorites = [] } = options;
-  grid.innerHTML = products.map((product) => createProductCardHtml(product, favorites.includes(product.id))).join('');
-  
+
+  const empty = grid.closest('.section-container')?.querySelector('.empty-state') || document.getElementById('empty-state');
+  const count = document.getElementById('result-count');
+  const sectionTitle = document.getElementById('section-title');
+
+  const {
+    onOpen = () => {},
+    onToggleFavorite = () => {},
+    onAddToCart = () => {},
+    favorites = [],
+  } = options;
+
+  const hasResults = products.length > 0;
+  grid.hidden = !hasResults;
+  if (empty) empty.hidden = hasResults;
+
+  if (count && gridId === 'product-grid') {
+    count.textContent = `(${products.length})`;
+  }
+
+  grid.innerHTML = products
+    .map((product) => createProductCardHtml(product, favorites.includes(product.id)))
+    .join('');
+
   grid.querySelectorAll('.product-card').forEach((card) => {
     const product = products.find((p) => p.id === Number(card.dataset.id));
-    card.addEventListener('click', (e) => { if (!e.target.closest('.favorite-btn, .add-cart-btn')) onOpen(product); });
+    if (!product) return;
+
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('.favorite-btn, .add-cart-btn')) return;
+      onOpen(product);
+    });
+
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onOpen(product);
+      }
+    });
   });
-  grid.querySelectorAll('.favorite-btn').forEach((btn) => btn.addEventListener('click', (e) => { e.stopPropagation(); onToggleFavorite(products.find(p => p.id == btn.dataset.id)); }));
-  grid.querySelectorAll('.add-cart-btn').forEach((btn) => btn.addEventListener('click', (e) => { e.stopPropagation(); onAddToCart(products.find(p => p.id == btn.dataset.id), e); }));
+
+  grid.querySelectorAll('.favorite-btn').forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const product = products.find((p) => p.id === Number(btn.dataset.id));
+      if (product) onToggleFavorite(product);
+    });
+  });
+
+  grid.querySelectorAll('.add-cart-btn').forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const product = products.find((p) => p.id === Number(btn.dataset.id));
+      if (product) onAddToCart(product, event);
+    });
+  });
+
+  if (sectionTitle && gridId === 'product-grid') {
+    sectionTitle.textContent = t('products');
+  }
 }
 
+/**
+ * 构建单个商品卡片 HTML。
+ */
 function createProductCardHtml(product, isFavorite) {
   const inStock = product.stock > 0;
+  const tags = [];
+
+  if (product.isNew) tags.push(`<span class="card-tag new">${t('new')}</span>`);
+  if (product.isHot) tags.push(`<span class="card-tag hot">${t('hot')}</span>`);
+  if (product.isPromotion) tags.push(`<span class="card-tag promotion">${t('promotions')}</span>`);
+
   const stockKey = inStock ? 'inStock' : 'outOfStock';
   const actionKey = inStock ? 'viewDetails' : 'outOfStock';
-  
-  const nameKey = `prod_name_${product.id}`;
-  const translatedName = t(nameKey);
-  const displayName = (translatedName === nameKey) ? product.name : translatedName;
 
   return `
-    <article class="product-card" data-id="${product.id}" tabindex="0" role="button">
+    <article class="product-card" data-id="${product.id}" tabindex="0" role="button" aria-label="${t('viewDetails')} ${product.name}">
       <div class="card-image-wrap">
         <img src="${resolveImagePath(product.image)}" alt="${product.name}" loading="lazy" />
-        <span class="card-badge ${inStock ? 'in-stock' : 'out-stock'}" data-i18n="${stockKey}">${t(stockKey)}</span>
-        <button type="button" class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${product.id}">${isFavorite ? '❤️' : '🤍'}</button>
+        <div class="card-tags">${tags.join('')}</div>
+        <span class="card-badge ${inStock ? 'in-stock' : 'out-stock'}">${t(stockKey)}</span>
+        <button type="button" class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${product.id}" aria-label="${t('favorite')}">
+          ${isFavorite ? '❤️' : '🤍'}
+        </button>
       </div>
       <div class="card-body">
-        <h3 class="card-name">${displayName}</h3>
-        <p class="card-specs">${product.specs}</p>
+        <div class="card-meta">
+          <span class="card-category">${product.category || ''}</span>
+          <span class="card-brand">${product.brand || ''}</span>
+        </div>
+        <h3 class="card-name">${product.name}</h3>
+        <p class="card-specs">${product.specs || ''}</p>
         <div class="card-price-row">
           <span class="card-price">${product.price}<span> ₸</span></span>
+          ${product.originalPrice > product.price ? `<span class="card-original-price">${product.originalPrice} ₸</span>` : ''}
         </div>
         <div class="card-actions">
-          <button type="button" class="card-btn" data-i18n="${actionKey}">${t(actionKey)}</button>
-          <button type="button" class="add-cart-btn" data-id="${product.id}" ${inStock ? '' : 'disabled'}>🛒</button>
+          <button type="button" class="card-btn ${inStock ? '' : 'out-stock'}">${t(actionKey)}</button>
+          <button type="button" class="add-cart-btn" data-id="${product.id}" ${inStock ? '' : 'disabled'} aria-label="${t('addToCart')}">
+            🛒
+          </button>
         </div>
       </div>
     </article>
   `;
 }
 
+/**
+ * 渲染商品列表（用于购物车、收藏、订单等页面）。
+ */
+export function renderList(items, containerId, renderItem) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (!items.length) {
+    container.innerHTML = `<p class="empty-state">---</p>`;
+    const emptyEl = container.querySelector('.empty-state');
+    if (emptyEl) {
+      if (containerId === 'cart-container') emptyEl.textContent = t('emptyCart');
+      else if (containerId === 'favorites-container') emptyEl.textContent = t('emptyFavorites');
+      else emptyEl.textContent = t('emptyOrders');
+    }
+    return;
+  }
+
+  container.innerHTML = items.map(renderItem).join('');
+}
+
+/**
+ * 渲染页脚。
+ */
 export function renderFooter(shop) {
+  if (!shop) return;
   const footerName = document.getElementById('footer-name');
-  if (footerName && shop) footerName.textContent = shop.name;
+  if (footerName) footerName.textContent = shop.name;
 }
