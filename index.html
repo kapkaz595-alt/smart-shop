@@ -37,7 +37,7 @@
           <a href="index.html" class="brand">
             <div id="shop-logo" class="brand-logo" aria-hidden="true">☀️</div>
             <div class="brand-text">
-              <h1 id="shop-name" class="brand-name" data-i18n="shopName">阳光便利店</h1>
+              <h1 id="shop-name" class="brand-name">阳光便利店</h1>
               <p id="shop-slogan" class="brand-slogan" data-i18n="shopSlogan">家门口的数字货架</p>
             </div>
           </a>
@@ -64,7 +64,6 @@
             <button id="orders-btn" class="icon-btn" aria-label="订单" data-i18n-label="orders">📋</button>
             <button id="admin-btn" class="icon-btn" aria-label="管理" data-i18n-label="admin">⚙️</button>
 
-            <!-- 多语言切换胶囊 -->
             <div class="top-lang-picker">
               <select id="lang-select" aria-label="Language Selector">
                 <option value="kk">Қазақша</option>
@@ -87,10 +86,17 @@
     </header>
 
     <main class="main-content">
-      <!-- 轮播广告、优惠、新品等其他内容不变，直接保留原样即可 -->
-      <!-- (此处省略部分代码，复制时请保留您原有的主体内容) -->
-      
-      <!-- 这里仅展示关键的标签结构，确保它们带有 data-i18n 属性 -->
+      <!-- 轮播广告 -->
+      <section class="banner-section container">
+        <div id="banner-carousel" class="banner-carousel">
+          <div id="banner-track" class="banner-track">
+            <!-- banner 由 JS 渲染 -->
+          </div>
+          <div id="banner-dots" class="banner-dots"></div>
+        </div>
+      </section>
+
+      <!-- 优惠专区 -->
       <section id="promotions" class="section-promotions container section-container">
         <div class="section-header">
           <h2 class="section-title" data-i18n="promotionsSection">🔥 优惠专区</h2>
@@ -100,16 +106,88 @@
         <div id="promotions-grid" class="product-grid"></div>
       </section>
 
-      <!-- ... 其余页面代码 ... -->
+      <!-- 新品上市 -->
+      <section id="new-arrivals" class="new-section container section-container">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="newSection">✨ 新品上市</h2>
+          <a href="products.html" class="view-all-link" data-i18n="viewAll">查看全部 →</a>
+        </div>
+        <p class="empty-state" data-i18n="emptyState" hidden>暂无新品。</p>
+        <div id="new-grid" class="product-grid"></div>
+      </section>
 
+      <!-- 热门商品 -->
+      <section class="hot-section container section-container">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="hotSection">🏆 热门商品</h2>
+          <a href="products.html" class="view-all-link" data-i18n="viewAll">查看全部 →</a>
+        </div>
+        <p class="empty-state" data-i18n="emptyState" hidden>暂无热门商品。</p>
+        <div id="hot-grid" class="product-grid"></div>
+      </section>
+
+      <!-- 全部商品 -->
+      <section class="page-section container">
+        <div class="section-header">
+          <h2 id="section-title" class="section-title" data-i18n="products">🏪 全部商品</h2>
+          <p id="result-count" class="section-count"></p>
+        </div>
+        <p id="empty-state" class="empty-state" data-i18n="noProductsFound" hidden>没有找到相关商品，换个关键词试试吧。</p>
+        <div id="product-grid" class="product-grid"></div>
+      </section>
+
+      <!-- 猜你喜欢 -->
+      <section class="recommendations-section container section-container">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="recommendSection">💡 猜你喜欢</h2>
+        </div>
+        <p class="empty-state" data-i18n="recommendEmpty" hidden>浏览更多商品后，会在这里为您推荐。</p>
+        <div id="recommend-grid" class="product-grid"></div>
+      </section>
     </main>
+
+    <!-- 商品详情弹窗 -->
+    <div id="product-modal" class="modal-overlay" hidden>
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button id="modal-close" class="modal-close" aria-label="关闭">&times;</button>
+        <div class="modal-image-wrap">
+          <img id="modal-image" class="modal-image" src="" alt="" />
+        </div>
+        <div id="modal-gallery" class="modal-gallery"></div>
+        <div class="modal-body">
+          <span id="modal-category" class="modal-category"></span>
+          <div class="modal-header">
+            <h3 id="modal-title" class="modal-title"></h3>
+          </div>
+          <p id="modal-brand" class="modal-brand"></p>
+          <div class="modal-price-row">
+            <span id="modal-price" class="modal-price"></span>
+            <span id="modal-original-price" class="modal-original-price"></span>
+            <span id="modal-discount" class="modal-discount"></span>
+          </div>
+          <p id="modal-stock" class="modal-stock"></p>
+          <div id="modal-meta" class="modal-meta-grid"></div>
+          <div class="modal-desc">
+            <h4 class="modal-subtitle" data-i18n="productDesc">商品介绍</h4>
+            <p id="modal-desc"></p>
+          </div>
+          <div id="modal-features" class="modal-features">
+            <h4 class="modal-subtitle" data-i18n="productFeatures">商品特点</h4>
+          </div>
+          <div class="modal-actions">
+            <button id="modal-favorite" type="button" class="modal-btn secondary" data-i18n="favorite">🤍 收藏</button>
+            <button id="modal-add-cart" type="button" class="modal-btn primary" data-i18n="addToCart">🛒 加入购物车</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 页脚 -->
     <footer class="site-footer">
       <div class="container footer-content">
         <div class="footer-block">
           <h4 data-i18n="shopInfo">店铺信息</h4>
-          <p id="footer-name" data-i18n="shopName">阳光便利店</p>
+          <p id="footer-name">阳光便利店</p>
           <p id="shop-address-footer">📍 某某市幸福路 88 号</p>
           <p id="shop-phone-footer">☎ 138-0000-0000</p>
           <p id="shop-hours-footer">🕒 每天 09:00 - 22:00</p>
@@ -121,7 +199,7 @@
           <a id="shop-map" class="footer-link" href="#" target="_blank" data-i18n="googleMapNav">Google Map 导航</a>
         </div>
       </div>
-      <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name" data-i18n="shopName">阳光便利店</span> SmartShop. <span data-i18n="allRightsReserved">保留所有权利。</span></p>
+      <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name">阳光便利店</span> SmartShop. <span data-i18n="allRightsReserved">保留所有权利。</span></p>
     </footer>
 
     <script type="module" src="js/main.js"></script>
