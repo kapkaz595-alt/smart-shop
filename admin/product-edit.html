@@ -14,10 +14,15 @@
       .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
       .form-control { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-bg); color: var(--color-text); font-size: 14px; }
       .form-control:focus { border-color: var(--color-primary); outline: none; }
-      .checkbox-group { display: flex; gap: 20px; margin-top: 10px; }
+      .form-row { display: flex; gap: 16px; }
+      .form-row .form-group { flex: 1; }
+      .checkbox-group { display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; }
       .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
       .preview-img { max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 6px; margin-top: 10px; display: none; border: 1px solid var(--color-border); }
       .form-actions { display: flex; gap: 12px; margin-top: 30px; }
+      .form-section-title { font-size: 15px; font-weight: bold; margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
+      #promotion-fields { display: none; margin-top: 12px; }
+      .hint { font-size: 12px; color: var(--color-text-secondary, #888); margin-top: 4px; }
     </style>
   </head>
   <body>
@@ -41,27 +46,80 @@
     <main class="main-content">
       <section class="page-section container">
         <h2 id="page-action-title" class="page-title">📦 新增商品</h2>
-        
+
         <form id="product-form" class="edit-form">
+          <div class="form-section-title">基本信息</div>
+
           <div class="form-group">
             <label for="p-name">商品名称 *</label>
             <input type="text" id="p-name" class="form-control" required placeholder="例如：新鲜大苹果" />
           </div>
 
-          <div class="form-group">
-            <label for="p-category">分类 *</label>
-            <input type="text" id="p-category" class="form-control" required placeholder="例如：水果蔬菜" />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-category">分类 *</label>
+              <input type="text" id="p-category" class="form-control" required placeholder="例如：水果蔬菜" />
+            </div>
+            <div class="form-group">
+              <label for="p-brand">品牌</label>
+              <input type="text" id="p-brand" class="form-control" placeholder="例如：农夫山泉" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-specs">规格</label>
+              <input type="text" id="p-specs" class="form-control" placeholder="例如：500ml / 一箱24瓶" />
+            </div>
+            <div class="form-group">
+              <label for="p-barcode">条码</label>
+              <input type="text" id="p-barcode" class="form-control" placeholder="商品条形码" />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="p-price">销售价格 *</label>
-            <input type="number" id="p-price" class="form-control" step="0.01" required placeholder="0.00" />
+            <label for="p-desc">商品描述</label>
+            <textarea id="p-desc" class="form-control" rows="4" placeholder="请输入商品的详细介绍..."></textarea>
+          </div>
+
+          <div class="form-section-title">价格与库存</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-price">销售价格 *</label>
+              <input type="number" id="p-price" class="form-control" step="0.01" required placeholder="0.00" />
+            </div>
+            <div class="form-group">
+              <label for="p-original-price">原价</label>
+              <input type="number" id="p-original-price" class="form-control" step="0.01" placeholder="不打折可留空" />
+              <p class="hint">填了原价 + 开启促销，才会在商品卡上显示划线价</p>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="p-stock">商品库存 *</label>
             <input type="number" id="p-stock" class="form-control" required placeholder="100" />
           </div>
+
+          <div class="form-section-title">生产信息</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-manufacturer">生产厂家</label>
+              <input type="text" id="p-manufacturer" class="form-control" placeholder="例如：某某食品有限公司" />
+            </div>
+            <div class="form-group">
+              <label for="p-shelf-life">保质期</label>
+              <input type="text" id="p-shelf-life" class="form-control" placeholder="例如：12个月 / 7天" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="p-production-date">生产日期</label>
+            <input type="date" id="p-production-date" class="form-control" />
+          </div>
+
+          <div class="form-section-title">图片</div>
 
           <div class="form-group">
             <label for="p-image-file">商品主图 *</label>
@@ -70,16 +128,20 @@
             <img id="p-preview" class="preview-img" alt="图片预览" />
           </div>
 
-          <div class="form-group">
-            <label for="p-desc">商品描述</label>
-            <textarea id="p-desc" class="form-control" rows="4" placeholder="请输入商品的详细介绍..."></textarea>
-          </div>
+          <div class="form-section-title">标签与促销</div>
 
           <div class="form-group">
-            <label>商品标签/促销</label>
             <div class="checkbox-group">
               <label class="checkbox-label"><input type="checkbox" id="p-is-new" /> 新品✨</label>
               <label class="checkbox-label"><input type="checkbox" id="p-is-hot" /> 热销🔥</label>
+              <label class="checkbox-label"><input type="checkbox" id="p-is-promotion" /> 打折促销🏷️</label>
+            </div>
+
+            <div id="promotion-fields">
+              <div class="form-group" style="margin-top:16px;">
+                <label for="p-promotion-type">促销说明</label>
+                <input type="text" id="p-promotion-type" class="form-control" placeholder="例如：限时8折 / 满30减5 / 买一送一" />
+              </div>
             </div>
           </div>
 
@@ -107,11 +169,20 @@
       const fileInput = document.getElementById('p-image-file');
       const urlInput = document.getElementById('p-image-url');
       const previewImg = document.getElementById('p-preview');
+      const submitBtn = document.getElementById('submit-btn');
+      const isPromotionCheckbox = document.getElementById('p-is-promotion');
+      const promotionFields = document.getElementById('promotion-fields');
 
       // 路由重定向助手
       function goBack() {
         window.location.href = new URL('dashboard.html', window.location.href).href;
       }
+
+      // 促销说明输入框：只有勾选"打折促销"才显示
+      function togglePromotionFields() {
+        promotionFields.style.display = isPromotionCheckbox.checked ? 'block' : 'none';
+      }
+      isPromotionCheckbox.addEventListener('change', togglePromotionFields);
 
       async function initPage() {
         // 1. 权限拦截
@@ -148,19 +219,30 @@
           try {
             const { data: p, error } = await supabase
               .from('products')
+              .select('*')
               .eq('id', productId)
               .single();
 
             if (error) throw error;
             if (p) {
-              document.getElementById('p-name').value = p.name;
-              document.getElementById('p-category').value = p.category;
-              document.getElementById('p-price').value = p.price;
-              document.getElementById('p-stock').value = p.stock;
+              document.getElementById('p-name').value = p.name || '';
+              document.getElementById('p-category').value = p.category || '';
+              document.getElementById('p-brand').value = p.brand || '';
+              document.getElementById('p-specs').value = p.specs || '';
+              document.getElementById('p-barcode').value = p.barcode || '';
               document.getElementById('p-desc').value = p.description || '';
+              document.getElementById('p-price').value = p.price ?? '';
+              document.getElementById('p-original-price').value = p.original_price ?? '';
+              document.getElementById('p-stock').value = p.stock ?? '';
+              document.getElementById('p-manufacturer').value = p.manufacturer || '';
+              document.getElementById('p-shelf-life').value = p.shelf_life || '';
+              document.getElementById('p-production-date').value = p.production_date || '';
               document.getElementById('p-is-new').checked = !!p.is_new;
               document.getElementById('p-is-hot').checked = !!p.is_hot;
-              
+              document.getElementById('p-is-promotion').checked = !!p.is_promotion;
+              document.getElementById('p-promotion-type').value = p.promotion_type || '';
+              togglePromotionFields();
+
               if (p.image) {
                 urlInput.value = p.image;
                 previewImg.src = p.image;
@@ -179,20 +261,44 @@
           const productData = {
             name: document.getElementById('p-name').value,
             category: document.getElementById('p-category').value,
+            brand: document.getElementById('p-brand').value || null,
+            specs: document.getElementById('p-specs').value || null,
+            barcode: document.getElementById('p-barcode').value || null,
             price: parseFloat(document.getElementById('p-price').value),
+            originalPrice: document.getElementById('p-original-price').value
+              ? parseFloat(document.getElementById('p-original-price').value)
+              : null,
             stock: parseInt(document.getElementById('p-stock').value),
+            manufacturer: document.getElementById('p-manufacturer').value || null,
+            shelfLife: document.getElementById('p-shelf-life').value || null,
+            productionDate: document.getElementById('p-production-date').value || null,
             image: urlInput.value || 'https://via.placeholder.com/150', // 默认占位图
             description: document.getElementById('p-desc').value,
             isNew: document.getElementById('p-is-new').checked,
             isHot: document.getElementById('p-is-hot').checked,
+            isPromotion: document.getElementById('p-is-promotion').checked,
+            promotionType: document.getElementById('p-is-promotion').checked
+              ? (document.getElementById('p-promotion-type').value || null)
+              : null,
           };
 
-          if (isEditMode) {
-            const success = await updateProduct(Number(productId), productData);
-            if (success) goBack();
-          } else {
-            await addProduct(productData);
-            goBack();
+          submitBtn.disabled = true;
+          submitBtn.textContent = '保存中...';
+
+          try {
+            let success;
+            if (isEditMode) {
+              success = await updateProduct(Number(productId), productData);
+            } else {
+              success = await addProduct(productData);
+            }
+
+            if (success) {
+              goBack();
+            }
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '保存商品';
           }
         });
       }
