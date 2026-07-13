@@ -1,6 +1,5 @@
 // ==========================================================================
-// render.js
-// 负责把数据渲染成 DOM
+// render.js - 补全导出版
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
@@ -15,6 +14,35 @@ export function renderShopHeader(shop) {
   if (logo) logo.textContent = shop.logo || '☀️';
   if (name) name.textContent = shop.name || 'SmartShop';
   document.title = `${shop.name} | SmartShop`;
+}
+
+export function renderBanners(banners) {
+  const track = document.getElementById('banner-track');
+  if (!track || !banners) return;
+  track.innerHTML = banners.map((banner, index) => `
+    <div class="banner-slide ${index === 0 ? 'active' : ''}">
+      <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" />
+    </div>`).join('');
+}
+
+export function renderAnnouncements(announcements) {
+  const track = document.getElementById('announcement-track');
+  if (!track || !announcements) return;
+  track.innerHTML = announcements.map(item => `
+    <div class="announcement-item">${item.content}</div>`).join('');
+}
+
+export function renderCategories(categories, activeCategory, onSelect) {
+  const list = document.getElementById('category-list');
+  if (!list) return;
+  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
+  list.innerHTML = items.map((cat) => `
+    <li>
+      <button type="button" class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}" data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}">
+        ${cat.name}
+      </button>
+    </li>`).join('');
+  list.querySelectorAll('.category-btn').forEach((btn) => btn.addEventListener('click', () => onSelect(btn.dataset.category)));
 }
 
 export function renderProducts(products, options = {}) {
@@ -36,7 +64,6 @@ function createProductCardHtml(product, isFavorite) {
   const stockKey = inStock ? 'inStock' : 'outOfStock';
   const actionKey = inStock ? 'viewDetails' : 'outOfStock';
   
-  // 智能翻译：如果字典里没找到翻译，直接使用原始 product.name
   const nameKey = `prod_name_${product.id}`;
   const translatedName = t(nameKey);
   const displayName = (translatedName === nameKey) ? product.name : translatedName;
@@ -63,15 +90,7 @@ function createProductCardHtml(product, isFavorite) {
   `;
 }
 
-export function renderCategories(categories, activeCategory, onSelect) {
-  const list = document.getElementById('category-list');
-  if (!list) return;
-  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
-  list.innerHTML = items.map((cat) => `
-      <li>
-        <button type="button" class="category-btn ${cat.name === activeCategory || (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL) ? 'active' : ''}" data-category="${cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name}">
-          ${cat.name}
-        </button>
-      </li>`).join('');
-  list.querySelectorAll('.category-btn').forEach((btn) => btn.addEventListener('click', () => onSelect(btn.dataset.category)));
+export function renderFooter(shop) {
+  const footerName = document.getElementById('footer-name');
+  if (footerName && shop) footerName.textContent = shop.name;
 }
