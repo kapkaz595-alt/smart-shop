@@ -119,7 +119,8 @@ export function renderAnnouncements(announcements) {
 }
 
 /**
- * 渲染分类导航按钮 - 优化版
+ * 渲染分类导航按钮 - 修复版
+ * 使用事件委托，避免重复绑定和DOM替换问题
  */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
@@ -149,19 +150,22 @@ export function renderCategories(categories, activeCategory, onSelect) {
     })
     .join('');
 
-  // 重新绑定事件（使用事件委托更好，但这里先保持简单）
-  list.querySelectorAll('.category-btn').forEach((btn) => {
-    // 先移除旧事件防止重复绑定
-    btn.replaceWith(btn.cloneNode(true));
-  });
-
-  // 重新添加事件
-  list.querySelectorAll('.category-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const category = btn.dataset.category;
+  // 使用事件委托替代循环绑定 - 解决重复绑定和DOM替换问题
+  list.removeEventListener('click', handleCategoryClick);
+  
+  const handleCategoryClick = (e) => {
+    const btn = e.target.closest('.category-btn');
+    if (!btn) return;
+    const category = btn.dataset.category;
+    if (category) {
+      // 更新按钮样式
+      list.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
       onSelect(category);
-    });
-  });
+    }
+  };
+  
+  list.addEventListener('click', handleCategoryClick);
 }
 
 /**
