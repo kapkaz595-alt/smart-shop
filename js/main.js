@@ -6,7 +6,7 @@
 
 import { fetchHomeData } from './api.js';
 import { initPersistedState, getState, setState, subscribe } from './state.js';
-import { initTheme, toggleTheme } from './theme.js';
+import { initTheme } from './theme.js';
 import { initLanguage, setLanguage } from './language.js';
 import {
   renderShopHeader,
@@ -33,7 +33,6 @@ const cartBtn = document.getElementById('cart-btn');
 const favBtn = document.getElementById('favorites-btn');
 const ordersBtn = document.getElementById('orders-btn');
 const adminBtn = document.getElementById('admin-btn');
-const themeToggleBtn = document.getElementById('theme-toggle');
 const langSelect = document.getElementById('lang-select');
 const clearCartBtn = document.getElementById('clear-cart-btn');
 const submitOrderBtn = document.getElementById('submit-order-btn');
@@ -240,13 +239,6 @@ function bindEvents() {
       if (!searchInput.contains(e.target) && !searchHistoryBox.contains(e.target)) {
         searchHistoryBox.classList.remove('active');
       }
-    });
-  }
-
-  // 主题切换按钮：点击一次在浅色/深色之间切换
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      toggleTheme();
     });
   }
 
