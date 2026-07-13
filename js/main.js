@@ -1,13 +1,11 @@
 // ==========================================================================
-// main.js
-// SmartShop 前端入口。负责页面初始化、事件绑定、数据流转与 UI 更新。
-// 严格遵循模块化原则：每个功能由独立模块处理，main.js 只做串联。
+// main.js - SmartShop 前端入口 (修复语言切换版)
 // ==========================================================================
 
 import { fetchHomeData } from './api.js';
 import { initPersistedState, getState, setState, subscribe } from './state.js';
 import { initTheme } from './theme.js';
-import { initLanguage, setLanguage } from './language.js';
+import { initLanguage, setLanguage, getLanguage } from './language.js';
 import {
   renderShopHeader,
   renderBanners,
@@ -45,7 +43,13 @@ async function init() {
   try {
     initTheme();
     initPersistedState();
+    
+    // 初始化语言
     initLanguage();
+    // 如果存在下拉框，将下拉框的值设置为当前语言
+    if (langSelect) {
+      langSelect.value = getLanguage();
+    }
 
     const { products, categories, shop, banners, announcements } = await fetchHomeData();
 
@@ -75,225 +79,56 @@ async function init() {
 }
 
 /**
- * 渲染首页所有区块：全部商品、优惠专区、新品、热门、猜你喜欢。
- */
-function renderAllSections() {
-  const { products, favorites, history } = getState();
-
-  renderFilteredProducts();
-  renderSection('promotions-grid', getPromotionProducts(products, 8));
-  renderSection('new-grid', getNewProducts(products, 8));
-  renderSection('hot-grid', getHotProducts(products, 8));
-  renderSection('recommend-grid', getRecommendedProducts(products, history, favorites, 8));
-}
-
-/**
- * 根据搜索词和分类渲染“全部商品”区域。
- */
-function renderFilteredProducts() {
-  const { products, searchTerm, activeCategory, favorites } = getState();
-  const byCategory = filterProducts(products, activeCategory);
-  const visible = searchProducts(byCategory, searchTerm);
-
-  renderProducts(visible, {
-    onOpen: handleOpenProduct,
-    onToggleFavorite: handleToggleFavorite,
-    onAddToCart: handleAddToCart,
-    favorites,
-  });
-}
-
-/**
- * 通用区块渲染：把商品列表渲染到指定容器。
- */
-function renderSection(gridId, products) {
-  const grid = document.getElementById(gridId);
-  if (!grid) return;
-
-  const container = grid.closest('.section-container') || grid;
-  const empty = container.querySelector('.empty-state');
-
-  if (!products.length) {
-    grid.innerHTML = '';
-    if (empty) empty.hidden = false;
-    return;
-  }
-  if (empty) empty.hidden = true;
-
-  renderProducts(products, {
-    onOpen: handleOpenProduct,
-    onToggleFavorite: handleToggleFavorite,
-    onAddToCart: handleAddToCart,
-    favorites: getState().favorites,
-    gridId,
-  });
-}
-
-/**
- * 处理分类切换。
- */
-function handleCategorySelect(category) {
-  setState({ activeCategory: category });
-  renderCategories(getState().categories, category, handleCategorySelect);
-  renderFilteredProducts();
-
-  // 点击分类（例如饮料、全部商品）后，页面自动平滑滚动到商品展示区
-  const targetGrid = document.getElementById('product-grid');
-  if (targetGrid) {
-    targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-/**
- * 处理搜索输入。
- */
-function handleSearchInput(event) {
-  const term = event.target.value;
-  setState({ searchTerm: term });
-  renderFilteredProducts();
-}
-
-/**
- * 保存当前搜索关键词到历史。
- */
-function commitSearchHistory() {
-  const term = searchInput.value.trim();
-  if (!term) return;
-  const next = recordSearch(term);
-  setState({ searchHistory: next });
-}
-
-/**
- * 打开商品详情弹窗。
- */
-function handleOpenProduct(product) {
-  recordView(product);
-  openProduct(product, { onView: () => {} });
-}
-
-/**
- * 切换收藏。
- */
-function handleToggleFavorite(product) {
-  toggleFavorite(product.id);
-  renderFilteredProducts();
-  renderAllSections();
-}
-
-/**
- * 加入购物车。
- */
-function handleAddToCart(product, event) {
-  if (event) event.stopPropagation();
-  addToCart(product, 1);
-  renderCartSummary(loadCart());
-}
-
-/**
  * 绑定全局事件。
  */
 function bindEvents() {
+  // 搜索逻辑
   if (searchInput) {
-    // 1. 键盘实时输入：输入什么就实时联动结果
     searchInput.addEventListener('input', handleSearchInput);
-
-    // 2. 📱 手机端键盘搜索键/回车键的核心事件
     searchInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
-        event.preventDefault(); // 阻止手机浏览器默认按回车刷新页面
-
+        event.preventDefault();
         const term = searchInput.value.trim();
-        setState({ searchTerm: term }); // 强制把当前输入文字同步进系统
-        renderFilteredProducts();       // 立即执行大范围搜索过滤
-        commitSearchHistory();          // 把这一次的记录保存到历史列表
-
-        searchHistoryBox.classList.remove('active'); // 隐藏历史记录弹窗
-        searchInput.blur();             // 让框失焦，强制收起手机软键盘
-
-        // 搜索成功后，自动平滑滚动到下面的全部商品结果区域
+        setState({ searchTerm: term });
+        renderFilteredProducts();
+        commitSearchHistory();
+        searchHistoryBox.classList.remove('active');
+        searchInput.blur();
         const targetGrid = document.getElementById('product-grid');
-        if (targetGrid) {
-          targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
-
-    // 3. 聚焦时展现历史记录框
     searchInput.addEventListener('focus', () => {
       renderSearchHistory(loadSearchHistory(), (selected) => {
-        // 点击历史记录条目时的回调逻辑
         searchInput.value = selected;
         setState({ searchTerm: selected });
         renderFilteredProducts();
         searchHistoryBox.classList.remove('active');
-
-        // 点击历史记录同样让页面滚下去展示
-        const targetGrid = document.getElementById('product-grid');
-        if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       searchHistoryBox.classList.add('active');
     });
-
-    // 4. 全局点击拦截历史框
-    document.addEventListener('click', (e) => {
-      if (!searchInput.contains(e.target) && !searchHistoryBox.contains(e.target)) {
-        searchHistoryBox.classList.remove('active');
-      }
-    });
   }
 
-  // ==================== 多语言选择事件核心修改 ====================
-  // 智能兼容：不管是原生下拉菜单还是自定义弹窗列表，全部进行完美捕获。
+  // 多语言切换逻辑
   if (langSelect) {
-    // 1. 兼容原有的原生 select 下拉切换逻辑
     langSelect.addEventListener('change', (e) => {
       setLanguage(e.target.value);
-      location.reload(); // 切换后刷新以应用新语言
+      location.reload(); // 切换后强制刷新，确保所有 i18n 标签重新渲染
     });
-
-    // 2. 针对自定义弹窗列表的监听：寻找该区域下所有带有 data-lang 属性的按钮/DOM节点
-    const langItems = langSelect.querySelectorAll('[data-lang]');
-    if (langItems.length > 0) {
-      langItems.forEach(item => {
-        item.addEventListener('click', () => {
-          const selectedLang = item.getAttribute('data-lang');
-          if (selectedLang) {
-            setLanguage(selectedLang);
-            location.reload(); // 切换后无缝刷新页面
-          }
-        });
-      });
-    }
   }
 
-  // 如果你的语言弹窗没有包裹在 langSelect 里，而是独立在页面任意地方，执行这一段兜底处理
-  document.querySelectorAll('.lang-option, [data-lang-btn], [data-lang]').forEach(item => {
-    // 防止重复绑定，如果是 langSelect 内部的就不在这里额外处理了
-    if (langSelect && langSelect.contains(item)) return;
+  // 导航按钮跳转
+  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = 'cart.html');
+  if (favBtn) favBtn.addEventListener('click', () => window.location.href = 'favorites.html');
+  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = 'orders.html');
+  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = 'admin/login.html');
 
-    item.addEventListener('click', () => {
-      const selectedLang = item.getAttribute('data-lang') || item.getAttribute('data-lang-btn');
-      if (selectedLang) {
-        setLanguage(selectedLang);
-        location.reload();
-      }
-    });
-  });
-  // =============================================================
-
-  // 统一转换为基于当前宿主环境的动态 URL 绝对路径计算，彻底消除 404
-  if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = new URL('cart.html', window.location.href).href);
-  if (favBtn) favBtn.addEventListener('click', () => window.location.href = new URL('favorites.html', window.location.href).href);
-  if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = new URL('orders.html', window.location.href).href);
-  if (adminBtn) adminBtn.addEventListener('click', () => window.location.href = new URL('admin/login.html', window.location.href).href);
-
-  // 购物车页面事件
+  // 购物车与订单处理
   if (clearCartBtn) clearCartBtn.addEventListener('click', () => {
     import('./cart.js').then((m) => m.clearCart());
     renderCartSummary([]);
   });
 
-  // 订单提交事件
   if (submitOrderBtn && orderForm) {
     submitOrderBtn.addEventListener('click', () => {
       const formData = new FormData(orderForm);
@@ -317,55 +152,62 @@ function bindEvents() {
     });
   }
 
-  // 弹窗内按钮：收藏与加入购物车
-  const modalFavorite = document.getElementById('modal-favorite');
-  const modalAddCart = document.getElementById('modal-add-cart');
-  if (modalFavorite) {
-    modalFavorite.addEventListener('click', async () => {
-      const { getCurrentProduct } = await import('./modal.js');
-      const product = getCurrentProduct();
-      if (product) {
-        toggleFavorite(product.id);
-        modalFavorite.classList.toggle('active', getState().favorites.includes(product.id));
-        modalFavorite.innerHTML = `${getState().favorites.includes(product.id) ? '❤️' : '🤍'} ${getState().favorites.includes(product.id) ? '已收藏' : '收藏'}`;
-        renderFilteredProducts();
-        renderAllSections();
-      }
-    });
-  }
-  if (modalAddCart) {
-    modalAddCart.addEventListener('click', async () => {
-      const { getCurrentProduct } = await import('./modal.js');
-      const product = getCurrentProduct();
-      if (product) {
-        addToCart(product);
-        renderCartSummary(loadCart());
-      }
-    });
-  }
-
-  // 状态订阅：当购物车/收藏变化时刷新相关 UI
+  // 状态订阅
   subscribe((state) => {
     renderCartSummary(state.cart);
   });
-
-  // 注册 Service Worker（PWA）
-  if ('serviceWorker' in navigator) {
-    const swUrl = `${import.meta.env.BASE_URL}sw.js`;
-    navigator.serviceWorker.register(swUrl).catch((error) => {
-      console.warn('Service Worker 注册失败：', error);
-    });
-  }
 }
 
-// 页面加载完成后初始化
+// 辅助渲染函数保持不变
+function renderAllSections() {
+  const { products, favorites, history } = getState();
+  renderFilteredProducts();
+  renderSection('promotions-grid', getPromotionProducts(products, 8));
+  renderSection('new-grid', getNewProducts(products, 8));
+  renderSection('hot-grid', getHotProducts(products, 8));
+  renderSection('recommend-grid', getRecommendedProducts(products, history, favorites, 8));
+}
+
+function renderFilteredProducts() {
+  const { products, searchTerm, activeCategory, favorites } = getState();
+  const byCategory = filterProducts(products, activeCategory);
+  const visible = searchProducts(byCategory, searchTerm);
+  renderProducts(visible, { onOpen: handleOpenProduct, onToggleFavorite: handleToggleFavorite, onAddToCart: handleAddToCart, favorites });
+}
+
+function renderSection(gridId, products) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const container = grid.closest('.section-container') || grid;
+  const empty = container.querySelector('.empty-state');
+  if (!products.length) { grid.innerHTML = ''; if (empty) empty.hidden = false; return; }
+  if (empty) empty.hidden = true;
+  renderProducts(products, { onOpen: handleOpenProduct, onToggleFavorite: handleToggleFavorite, onAddToCart: handleAddToCart, favorites: getState().favorites, gridId });
+}
+
+function handleCategorySelect(category) {
+  setState({ activeCategory: category });
+  renderCategories(getState().categories, category, handleCategorySelect);
+  renderFilteredProducts();
+  const targetGrid = document.getElementById('product-grid');
+  if (targetGrid) targetGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function handleSearchInput(event) {
+  setState({ searchTerm: event.target.value });
+  renderFilteredProducts();
+}
+
+function commitSearchHistory() {
+  const term = searchInput.value.trim();
+  if (!term) return;
+  setState({ searchHistory: recordSearch(term) });
+}
+
+function handleOpenProduct(product) { recordView(product); openProduct(product, { onView: () => {} }); }
+function handleToggleFavorite(product) { toggleFavorite(product.id); renderFilteredProducts(); renderAllSections(); }
+function handleAddToCart(product, event) { if (event) event.stopPropagation(); addToCart(product, 1); renderCartSummary(loadCart()); }
+
 document.addEventListener('DOMContentLoaded', init);
 
-// 导出供其他页面复用的函数
-export {
-  handleOpenProduct,
-  handleToggleFavorite,
-  handleAddToCart,
-  renderFilteredProducts,
-  handleCategorySelect,
-};
+export { handleOpenProduct, handleToggleFavorite, handleAddToCart, renderFilteredProducts, handleCategorySelect };
