@@ -1,5 +1,5 @@
 // ==========================================================================
-// main.js - SmartShop 前端入口 (已优化分类点击 + 搜索防抖 + 自动滚动)
+// main.js - SmartShop 前端入口 (已优化分类点击 + 搜索防抖)
 // ==========================================================================
 
 import { fetchHomeData } from './api.js';
@@ -33,7 +33,6 @@ function debounce(fn, delay = 300) {
 }
 
 const searchInput = document.getElementById('search-input');
-const searchHistory = document.getElementById('search-history');
 const cartBtn = document.getElementById('cart-btn');
 const favBtn = document.getElementById('favorites-btn');
 const ordersBtn = document.getElementById('orders-btn');
@@ -84,13 +83,16 @@ async function init() {
  */
 function handleCategorySelect(category) {
   setState({ activeCategory: category, searchTerm: '' });
+  if (searchInput) searchInput.value = '';
   renderFilteredProducts();
   
   // 自动滚动到商品区域
-  const productGrid = document.getElementById('product-grid');
-  if (productGrid) {
-    productGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  setTimeout(() => {
+    const productGrid = document.getElementById('product-grid');
+    if (productGrid) {
+      productGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
 }
 
 /**
@@ -106,7 +108,6 @@ function handleOpenProduct(product) {
  */
 function handleToggleFavorite(product) {
   toggleFavorite(product.id);
-  const state = getState();
   renderFilteredProducts();
   renderAllSections();
 }
@@ -124,52 +125,14 @@ function handleAddToCart(product, event) {
   }
 }
 
-/**
- * 处理搜索输入
- */
-function handleSearchInput(e) {
-  const term = e.target.value;
-  setState({ searchTerm: term, activeCategory: ALL_CATEGORIES_LABEL });
-  renderFilteredProducts();
-  
-  // 显示搜索历史
-  if (term) {
-    if (searchHistory) searchHistory.classList.remove('active');
-  }
-}
-
-/**
- * 处理搜索框焦点 - 显示搜索历史
- */
-function handleSearchFocus() {
-  if (!searchHistory) return;
-  const history = getState().searchHistory || [];
-  if (history.length > 0) {
-    renderSearchHistory(history, (term) => {
-      if (searchInput) searchInput.value = term;
-      setState({ searchTerm: term, activeCategory: ALL_CATEGORIES_LABEL });
-      renderFilteredProducts();
-      if (searchHistory) searchHistory.classList.remove('active');
-    });
-    searchHistory.classList.add('active');
-  }
-}
-
-/**
- * 处理搜索框失焦 - 隐藏搜索历史
- */
-function handleSearchBlur() {
-  setTimeout(() => {
-    if (searchHistory) searchHistory.classList.remove('active');
-  }, 200);
-}
-
 function bindEvents() {
   // 搜索逻辑 - 使用防抖优化
   if (searchInput) {
-    searchInput.addEventListener('input', debounce(handleSearchInput, 250));
-    searchInput.addEventListener('focus', handleSearchFocus);
-    searchInput.addEventListener('blur', handleSearchBlur);
+    searchInput.addEventListener('input', debounce((e) => {
+      const term = e.target.value.trim();
+      setState({ searchTerm: term, activeCategory: ALL_CATEGORIES_LABEL });
+      renderFilteredProducts();
+    }, 250));
   }
 
   // 语言切换
