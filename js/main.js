@@ -21,6 +21,7 @@ import { openProduct } from './modal.js';
 import { addToCart, loadCart, renderCartSummary } from './cart.js';
 import { toggleFavorite } from './favorite.js';
 import { getHotProducts, getRecommendedProducts, getNewProducts, getPromotionProducts } from './recommend.js';
+import { fetchHomeData } from './api.js';
 
 // 防抖函数
 function debounce(fn, delay = 300) {
@@ -70,41 +71,37 @@ async function init() {
   try {
     initTheme();
     initPersistedState();
-    
-    initLanguage();
+    initLanguage(); 
     if (langSelect) langSelect.value = getLanguage();
 
-    // 加载本地JSON数据 (不依赖Supabase)
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    
-    const [categoriesRes, shopRes, bannersRes, announcementsRes, productsRes] = await Promise.all([
-      fetch(`${baseUrl}data/categories.json`).then(r => r.json()).catch(() => []),
-      fetch(`${baseUrl}data/shop.json`).then(r => r.json()).catch(() => ({})),
-      fetch(`${baseUrl}data/banner.json`).then(r => r.json()).catch(() => []),
-      fetch(`${baseUrl}data/announcement.json`).then(r => r.json()).catch(() => []),
-      fetch(`${baseUrl}data/products.json`).then(r => r.json()).catch(() => []),
-    ]);
-    
-    setState({ 
-      products: productsRes || [], 
-      categories: categoriesRes || [], 
-      shop: shopRes, 
-      banners: bannersRes || [], 
-      announcements: announcementsRes || [], 
+    // 从 api.js 加载数据 (商品来自 Supabase，其余来自本地 JSON)
+    const {
+      products,
+      categories,
+      shop,
+      banners,
+      announcements
+    } = await fetchHomeData();
+
+    setState({
+      products: products || [],
+      categories: categories || [],
+      shop,
+      banners: banners || [],
+      announcements: announcements || [],
       activeCategory: ALL_CATEGORIES_LABEL,
       searchTerm: ''
     });
 
-    renderShopHeader(shopRes);
-    renderFooter(shopRes);
-    renderBanners(bannersRes);
-    renderAnnouncements(announcementsRes);
-    renderCategories(categoriesRes || [], ALL_CATEGORIES_LABEL, handleCategorySelect);
-    
+    renderShopHeader(shop);
+    renderFooter(shop);
+    renderBanners(banners);
+    renderAnnouncements(announcements);
+    renderCategories(categories || [], ALL_CATEGORIES_LABEL, handleCategorySelect);
     renderAllSections();
     bindEvents();
     renderCartSummary(loadCart());
-    
+
   } catch (error) {
     console.error('初始化失败：', error);
   }
@@ -124,9 +121,7 @@ function bindEvents() {
     langSelect.addEventListener('change', (e) => {
       const selectedLang = e.target.value;
       setLanguage(selectedLang);
-      
       renderAllSections();
-      
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const translation = t(key);
@@ -138,7 +133,6 @@ function bindEvents() {
           }
         }
       });
-      
       renderShopHeader(getState().shop);
       renderCategories(getState().categories, getState().activeCategory, handleCategorySelect);
     });
@@ -165,21 +159,21 @@ function renderAllSections() {
 function renderFilteredProducts() {
   const { products, searchTerm, activeCategory, favorites } = getState();
   const byCategory = filterProducts(products, activeCategory);
-  renderProducts(searchProducts(byCategory, searchTerm), { 
-    onOpen: handleOpenProduct, 
-    onToggleFavorite: handleToggleFavorite, 
-    onAddToCart: handleAddToCart, 
-    favorites 
+  renderProducts(searchProducts(byCategory, searchTerm), {
+    onOpen: handleOpenProduct,
+    onToggleFavorite: handleToggleFavorite,
+    onAddToCart: handleAddToCart,
+    favorites
   });
 }
 
 function renderSection(gridId, products) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
-  renderProducts(products, { 
-    onOpen: handleOpenProduct, 
-    onToggleFavorite: handleToggleFavorite, 
-    onAddToCart: handleAddToCart, 
+  renderProducts(products, {
+    onOpen: handleOpenProduct,
+    onToggleFavorite: handleToggleFavorite,
+    onAddToCart: handleAddToCart,
     gridId,
     favorites: getState().favorites
   });
