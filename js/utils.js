@@ -5,9 +5,15 @@
 
 /**
  * 解析图片路径，加上部署前缀。
+ * 如果 path 本身已经是完整 URL（如 Supabase Storage 返回的链接），
+ * 直接原样返回，不再拼接 BASE_URL，避免变成无效地址。
  * @param {string} path
  */
 export function resolveImagePath(path) {
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
   return `${import.meta.env.BASE_URL}${path}`;
 }
 
@@ -101,4 +107,3 @@ export function debounce(fn, delay = 300) {
     timer = setTimeout(() => fn(...args), delay);
   };
 }
-
