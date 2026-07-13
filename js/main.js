@@ -1,11 +1,11 @@
 // ==========================================================================
-// main.js - SmartShop 前端入口 (实时多语言切换版)
+// main.js - SmartShop 前端入口 (实时多语言切换版 - 已修复闪烁)
 // ==========================================================================
 
 import { fetchHomeData } from './api.js';
 import { initPersistedState, getState, setState, subscribe } from './state.js';
 import { initTheme } from './theme.js';
-import { initLanguage, setLanguage, getLanguage, t } from './language.js'; // 确保引入了 t
+import { initLanguage, setLanguage, getLanguage, t } from './language.js';
 import {
   renderShopHeader,
   renderBanners,
@@ -35,6 +35,8 @@ async function init() {
   try {
     initTheme();
     initPersistedState();
+    
+    // 初始化语言 (读取 localStorage，不再强制重置)
     initLanguage();
     if (langSelect) langSelect.value = getLanguage();
 
@@ -58,27 +60,18 @@ function bindEvents() {
   // 搜索逻辑
   if (searchInput) {
     searchInput.addEventListener('input', (e) => { setState({ searchTerm: e.target.value }); renderFilteredProducts(); });
-    searchInput.addEventListener('focus', () => {
-      renderSearchHistory(loadSearchHistory(), (selected) => {
-        searchInput.value = selected;
-        setState({ searchTerm: selected });
-        renderFilteredProducts();
-        searchHistoryBox.classList.remove('active');
-      });
-      searchHistoryBox.classList.add('active');
-    });
   }
 
   // 【核心修改】实时多语言切换逻辑
   if (langSelect) {
     langSelect.addEventListener('change', (e) => {
       const selectedLang = e.target.value;
-      setLanguage(selectedLang);
+      setLanguage(selectedLang); // 保存设置，不会刷新页面
       
-      // 1. 重新渲染商品区域（触发重新生成带新翻译名的 HTML）
+      // 1. 重新渲染整个页面内容（DOM 实时更新）
       renderAllSections();
       
-      // 2. 强制刷新页面上所有带有 data-i18n 属性的标签
+      // 2. 刷新所有标记了 data-i18n 的静态文案
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const translation = t(key);
@@ -87,11 +80,16 @@ function bindEvents() {
           else el.textContent = translation;
         }
       });
+      
       // 3. 更新页头文字
       renderShopHeader(getState().shop);
+      
+      // 4. 更新分类导航
+      renderCategories(getState().categories, getState().activeCategory, handleCategorySelect);
     });
   }
 
+  // 导航跳转
   if (cartBtn) cartBtn.addEventListener('click', () => window.location.href = 'cart.html');
   if (favBtn) favBtn.addEventListener('click', () => window.location.href = 'favorites.html');
   if (ordersBtn) ordersBtn.addEventListener('click', () => window.location.href = 'orders.html');
