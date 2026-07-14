@@ -182,7 +182,7 @@ function bindEvents() {
       debounce((e) => {
         setState({ searchTerm: e.target.value });
         renderFilteredProducts();
-        scrollToProducts(); // 新增：搜索时滚动到商品区块
+        // 注意：打字过程中不自动滚动，只在按下搜索键/回车时才滚动
       }, 250)
     );
 
