@@ -55,8 +55,11 @@ function findHtmlEntries(dir: string, base = dir): Record<string, string> {
 /**
  * 自定义插件：把不会被 HTML/JS 静态引用分析到的文件
  *（sw.js 是运行时通过 navigator.serviceWorker.register() 动态注册的，
- * Vite 无法通过静态分析发现它）以及 data/、images/ 整个目录，
- * 原样复制到构建输出目录。
+ * Vite 无法通过静态分析发现它）原样复制到构建输出目录。
+ *
+ * 注意：data/、images/ 已经移动到 public/ 目录下，
+ * Vite 会自动处理 public/ 内容（dev 和 build 都生效），
+ * 所以这里不再需要手动复制它们。
  */
 function staticAssetsPlugin(root: string, files: string[], dirs: string[]) {
   const copyDir = (src: string, dest: string) => {
@@ -103,7 +106,7 @@ export default defineConfig({
     staticAssetsPlugin(
       rootDir,
       ['sw.js', 'manifest.json', 'components.json', 'favicon.svg'],
-      ['data', 'images'],
+      [],
     ),
   ],
   build: {
