@@ -1,5 +1,5 @@
 // ==========================================================================
-// modal.js (已修复：增加元素存在性校验，防止报错)
+// modal.js (已修复：增加元素存在性校验，防止报错；补全收藏/加购物车按钮绑定)
 // ==========================================================================
 
 import { resolveImagePath, formatPrice } from './utils.js';
@@ -24,6 +24,8 @@ const modalAddCart = document.getElementById('modal-add-cart');
 const modalClose = document.getElementById('modal-close');
 
 let currentProduct = null;
+// 新增：保存 openProduct 时传入的回调，供按钮点击事件使用
+let currentCallbacks = {};
 
 /**
  * 打开商品详情弹窗。
@@ -32,6 +34,7 @@ export function openProduct(product, callbacks = {}) {
   if (!modal) return; // 安全检查：如果页面没弹窗，直接返回
 
   currentProduct = product;
+  currentCallbacks = callbacks; // 新增：保存回调，供收藏/加购物车按钮使用
   const inStock = product.stock > 0;
   const isFav = getState().favorites.includes(product.id);
   const shop = getState().shop || {};
@@ -85,6 +88,16 @@ export function openProduct(product, callbacks = {}) {
 }
 
 /**
+ * 刷新收藏按钮的显示状态（收藏/取消收藏后调用）。
+ */
+function refreshFavoriteButton() {
+  if (!modalFavorite || !currentProduct) return;
+  const isFav = getState().favorites.includes(currentProduct.id);
+  modalFavorite.innerHTML = `${isFav ? '❤️' : '🤍'} ${isFav ? '已收藏' : '收藏'}`;
+  modalFavorite.classList.toggle('active', isFav);
+}
+
+/**
  * 渲染弹窗内的小图轮播。
  */
 function renderGallery(images) {
@@ -110,6 +123,7 @@ export function closeProduct() {
   modal.hidden = true;
   document.body.style.overflow = '';
   currentProduct = null;
+  currentCallbacks = {};
 }
 
 // 安全地绑定事件：仅在元素存在时绑定
@@ -122,6 +136,27 @@ if (modal) {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && modal && !modal.hidden) closeProduct();
 });
+
+// 新增：收藏按钮点击事件
+if (modalFavorite) {
+  modalFavorite.addEventListener('click', () => {
+    if (!currentProduct) return;
+    if (currentCallbacks.onToggleFavorite) {
+      currentCallbacks.onToggleFavorite(currentProduct);
+    }
+    refreshFavoriteButton();
+  });
+}
+
+// 新增：加入购物车按钮点击事件
+if (modalAddCart) {
+  modalAddCart.addEventListener('click', (event) => {
+    if (!currentProduct || modalAddCart.disabled) return;
+    if (currentCallbacks.onAddToCart) {
+      currentCallbacks.onAddToCart(currentProduct, event);
+    }
+  });
+}
 
 export function getCurrentProduct() {
   return currentProduct;
