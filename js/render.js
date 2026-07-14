@@ -8,6 +8,9 @@ import { t } from './language.js';
 
 export const ALL_CATEGORIES_LABEL = '全部商品';
 
+// 店铺名字固定显示，不随后台数据或语言切换变化
+const FIXED_SHOP_NAME = 'E-DUKEN';
+
 /**
  * 渲染页头店铺信息。
  */
@@ -25,7 +28,8 @@ export function renderShopHeader(shop) {
   const map = document.getElementById('shop-map');
 
   if (logo) logo.textContent = shop.logo || '☀️';
-  if (name) name.textContent = shop.name || 'SmartShop';
+  // 店铺名字固定为 E-DUKEN，不使用后台数据的 shop.name
+  if (name) name.textContent = FIXED_SHOP_NAME;
   if (slogan) slogan.textContent = shop.description || '';
   if (phone) {
     phone.textContent = `☎ ${shop.phone}`;
@@ -37,7 +41,7 @@ export function renderShopHeader(shop) {
   if (telegram) telegram.href = `https://t.me/${shop.telegram}`;
   if (map) map.href = shop.googleMap || '#';
 
-  document.title = shop.name ? `${shop.name} | SmartShop` : 'SmartShop';
+  document.title = `${FIXED_SHOP_NAME} | SmartShop`;
 }
 
 /**
@@ -340,5 +344,8 @@ export function renderList(items, containerId, renderItem) {
 export function renderFooter(shop) {
   if (!shop) return;
   const footerName = document.getElementById('footer-name');
-  if (footerName) footerName.textContent = shop.name || '';
+  // 页脚店铺名字同样固定为 E-DUKEN
+  if (footerName) footerName.textContent = FIXED_SHOP_NAME;
+  const copyrightName = document.getElementById('footer-copyright-name');
+  if (copyrightName) copyrightName.textContent = FIXED_SHOP_NAME;
 }
