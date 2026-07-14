@@ -52,6 +52,14 @@ function showFatalError(message) {
   container.prepend(banner);
 }
 
+// 新增：滚动到"全部商品"区块，点击分类 / 搜索时调用
+function scrollToProducts() {
+  const section = document.getElementById('product-grid');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 // --------------------------------------------------------------------------
 // DOM 元素（延迟到 init 内部再取，避免脚本加载顺序问题）
 // --------------------------------------------------------------------------
@@ -73,6 +81,7 @@ function handleCategorySelect(category) {
   setState({ activeCategory: category, searchTerm: '' });
   if (searchInput) searchInput.value = '';
   renderFilteredProducts();
+  scrollToProducts(); // 新增：点击分类后滚动到商品区块
 }
 
 function handleOpenProduct(product) {
@@ -173,6 +182,7 @@ function bindEvents() {
       debounce((e) => {
         setState({ searchTerm: e.target.value });
         renderFilteredProducts();
+        scrollToProducts(); // 新增：搜索时滚动到商品区块
       }, 250)
     );
   }
