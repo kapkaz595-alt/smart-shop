@@ -4,7 +4,7 @@
 
 import { initPersistedState, getState, setState, subscribe } from './state.js';
 import { initTheme } from './theme.js';
-import { initLanguage, setLanguage, getLanguage, t } from './language.js';
+import { initLanguage, setLanguage, getLanguage, t, applyTranslations } from './language.js';
 import {
   renderShopHeader,
   renderBanners,
@@ -168,6 +168,7 @@ async function init() {
     renderCategories(categories, ALL_CATEGORIES_LABEL, handleCategorySelect)
   );
   safeRun('renderAllSections', renderAllSections);
+  safeRun('applyTranslations', applyTranslations);
   safeRun('bindEvents', bindEvents);
   safeRun('renderCartSummary', () => renderCartSummary(loadCart()));
 }
@@ -209,19 +210,7 @@ function bindEvents() {
       const selectedLang = e.target.value;
       safeRun('setLanguage', () => setLanguage(selectedLang));
       safeRun('renderAllSections', renderAllSections);
-
-      document.querySelectorAll('[data-i18n]').forEach((el) => {
-        const key = el.getAttribute('data-i18n');
-        const translation = t(key);
-        if (translation) {
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            el.placeholder = translation;
-          } else {
-            el.textContent = translation;
-          }
-        }
-      });
-
+      safeRun('applyTranslations', applyTranslations);
       safeRun('renderShopHeader', () => renderShopHeader(getState().shop));
       safeRun('renderCategories', () =>
         renderCategories(getState().categories, getState().activeCategory, handleCategorySelect)
