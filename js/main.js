@@ -185,6 +185,23 @@ function bindEvents() {
         scrollToProducts(); // 新增：搜索时滚动到商品区块
       }, 250)
     );
+
+    // 新增：点击输入法的"搜索/前往"按钮时触发（type="search" 专属事件）
+    searchInput.addEventListener('search', () => {
+      setState({ searchTerm: searchInput.value });
+      renderFilteredProducts();
+      scrollToProducts();
+    });
+
+    // 新增：兼容部分安卓输入法只发 Enter 键、不发 search 事件的情况
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setState({ searchTerm: searchInput.value });
+        renderFilteredProducts();
+        scrollToProducts();
+      }
+    });
   }
 
   if (langSelect) {
