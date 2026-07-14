@@ -77,7 +77,14 @@ function handleCategorySelect(category) {
 
 function handleOpenProduct(product) {
   safeRun('recordView', () => recordView(product.id));
-  safeRun('openProduct', () => openProduct(product));
+  // 关键修复：打开弹窗时，把收藏 / 加购物车的回调一起传进去，
+  // 否则 modal.js 内部的按钮点击后找不到对应的处理函数。
+  safeRun('openProduct', () =>
+    openProduct(product, {
+      onToggleFavorite: handleToggleFavorite,
+      onAddToCart: handleAddToCart,
+    })
+  );
 }
 
 function handleToggleFavorite(product) {
