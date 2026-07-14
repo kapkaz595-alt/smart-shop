@@ -37,7 +37,7 @@ export function renderShopHeader(shop) {
   if (telegram) telegram.href = `https://t.me/${shop.telegram}`;
   if (map) map.href = shop.googleMap || '#';
 
-  document.title = `${shop.name} | SmartShop`;
+  document.title = shop.name ? `${shop.name} | SmartShop` : 'SmartShop';
 }
 
 /**
@@ -46,16 +46,22 @@ export function renderShopHeader(shop) {
 export function renderBanners(banners) {
   const track = document.getElementById('banner-track');
   const dots = document.getElementById('banner-dots');
-  if (!track || !dots || !banners || !banners.length) return;
+  if (!track || !dots) return;
+
+  if (!banners || !banners.length) {
+    track.innerHTML = '';
+    dots.innerHTML = '';
+    return;
+  }
 
   track.innerHTML = banners
     .map(
       (banner, index) => `
       <div class="banner-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-        <img src="${resolveImagePath(banner.image)}" alt="${banner.title}" loading="lazy" />
+        <img src="${resolveImagePath(banner.image)}" alt="${banner.title || ''}" loading="lazy" />
         <div class="banner-content">
-          <h2 class="banner-title">${banner.title}</h2>
-          <p class="banner-subtitle">${banner.subtitle}</p>
+          <h2 class="banner-title">${banner.title || ''}</h2>
+          <p class="banner-subtitle">${banner.subtitle || ''}</p>
         </div>
       </div>
     `,
@@ -73,7 +79,17 @@ export function renderBanners(banners) {
   startBannerCarousel(banners.length);
 }
 
+// 记录当前轮播的定时器，避免每次 renderBanners 都新开一个 setInterval 导致内存泄漏/多重轮播
+let bannerIntervalId = null;
+
 function startBannerCarousel(count) {
+  if (bannerIntervalId) {
+    clearInterval(bannerIntervalId);
+    bannerIntervalId = null;
+  }
+
+  if (!count || count <= 1) return;
+
   let current = 0;
   const slides = document.querySelectorAll('.banner-slide');
   const dots = document.querySelectorAll('.banner-dot');
@@ -93,7 +109,7 @@ function startBannerCarousel(count) {
     dot.addEventListener('click', () => show(Number(dot.dataset.index)));
   });
 
-  setInterval(next, 5000);
+  bannerIntervalId = setInterval(next, 5000);
 }
 
 /**
@@ -101,9 +117,20 @@ function startBannerCarousel(count) {
  */
 export function renderAnnouncements(announcements) {
   const track = document.getElementById('announcement-track');
-  if (!track || !announcements || !announcements.length) return;
+  if (!track) return;
+
+  if (!announcements || !announcements.length) {
+    track.innerHTML = '';
+    return;
+  }
 
   const active = announcements.filter((item) => item.active);
+
+  if (!active.length) {
+    track.innerHTML = '';
+    return;
+  }
+
   track.innerHTML = active
     .map(
       (item) => `
@@ -111,7 +138,7 @@ export function renderAnnouncements(announcements) {
         <span class="badge">
           ${item.type === 'promotion' ? t('promotions') : item.type === 'new' ? t('new') : t('home')}
         </span>
-        <span>${item.title}：${item.content}</span>
+        <span>${item.title || ''}：${item.content || ''}</span>
       </div>
     `,
     )
@@ -119,22 +146,24 @@ export function renderAnnouncements(announcements) {
 }
 
 /**
- * 渲染分类导航按钮 - 修复版
- * 使用事件委托，避免重复绑定和DOM替换问题
+ * 渲染分类导航按钮（修复版）
+ * 每次调用都会用 innerHTML 整体重建列表内容，
+ * 因此直接绑定一次新的事件监听即可，无需（也不能）在绑定前尝试移除旧引用。
  */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
   if (!list) return;
 
-  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...categories];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...safeCategories];
 
-  // 清空并重新渲染
   list.innerHTML = items
     .map((cat) => {
-      const isActive = cat.name === activeCategory || 
-                      (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL);
+      const isActive =
+        cat.name === activeCategory ||
+        (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL);
       const categoryValue = cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name;
-      
+
       return `
         <li>
           <button
@@ -142,7 +171,7 @@ export function renderCategories(categories, activeCategory, onSelect) {
             class="category-btn ${isActive ? 'active' : ''}"
             data-category="${categoryValue}"
           >
-            <span class="category-icon">${cat.icon || ''}</span> 
+            <span class="category-icon">${cat.icon || ''}</span>
             ${cat.name}
           </button>
         </li>
@@ -150,22 +179,17 @@ export function renderCategories(categories, activeCategory, onSelect) {
     })
     .join('');
 
-  // 使用事件委托替代循环绑定 - 解决重复绑定和DOM替换问题
-  list.removeEventListener('click', handleCategoryClick);
-  
-  const handleCategoryClick = (e) => {
+  list.addEventListener('click', (e) => {
     const btn = e.target.closest('.category-btn');
     if (!btn) return;
     const category = btn.dataset.category;
-    if (category) {
-      // 更新按钮样式
-      list.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      onSelect(category);
-    }
-  };
-  
-  list.addEventListener('click', handleCategoryClick);
+    if (!category) return;
+
+    list.querySelectorAll('.category-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (typeof onSelect === 'function') onSelect(category);
+  });
 }
 
 /**
@@ -176,7 +200,11 @@ export function renderProducts(products, options = {}) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
 
-  const empty = grid.closest('.section-container')?.querySelector('.empty-state') || document.getElementById('empty-state');
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  const empty =
+    grid.closest('.section-container')?.querySelector('.empty-state') ||
+    document.getElementById('empty-state');
   const count = document.getElementById('result-count');
   const sectionTitle = document.getElementById('section-title');
 
@@ -187,20 +215,20 @@ export function renderProducts(products, options = {}) {
     favorites = [],
   } = options;
 
-  const hasResults = products.length > 0;
+  const hasResults = safeProducts.length > 0;
   grid.hidden = !hasResults;
   if (empty) empty.hidden = hasResults;
 
   if (count && gridId === 'product-grid') {
-    count.textContent = `(${products.length})`;
+    count.textContent = `(${safeProducts.length})`;
   }
 
-  grid.innerHTML = products
+  grid.innerHTML = safeProducts
     .map((product) => createProductCardHtml(product, favorites.includes(product.id)))
     .join('');
 
   grid.querySelectorAll('.product-card').forEach((card) => {
-    const product = products.find((p) => p.id === Number(card.dataset.id));
+    const product = safeProducts.find((p) => p.id === Number(card.dataset.id));
     if (!product) return;
 
     card.addEventListener('click', (event) => {
@@ -219,7 +247,7 @@ export function renderProducts(products, options = {}) {
   grid.querySelectorAll('.favorite-btn').forEach((btn) => {
     btn.addEventListener('click', (event) => {
       event.stopPropagation();
-      const product = products.find((p) => p.id === Number(btn.dataset.id));
+      const product = safeProducts.find((p) => p.id === Number(btn.dataset.id));
       if (product) onToggleFavorite(product);
     });
   });
@@ -227,7 +255,7 @@ export function renderProducts(products, options = {}) {
   grid.querySelectorAll('.add-cart-btn').forEach((btn) => {
     btn.addEventListener('click', (event) => {
       event.stopPropagation();
-      const product = products.find((p) => p.id === Number(btn.dataset.id));
+      const product = safeProducts.find((p) => p.id === Number(btn.dataset.id));
       if (product) onAddToCart(product, event);
     });
   });
@@ -290,7 +318,9 @@ export function renderList(items, containerId, renderItem) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  if (!items.length) {
+  const safeItems = Array.isArray(items) ? items : [];
+
+  if (!safeItems.length) {
     container.innerHTML = `<p class="empty-state">---</p>`;
     const emptyEl = container.querySelector('.empty-state');
     if (emptyEl) {
@@ -301,7 +331,7 @@ export function renderList(items, containerId, renderItem) {
     return;
   }
 
-  container.innerHTML = items.map(renderItem).join('');
+  container.innerHTML = safeItems.map(renderItem).join('');
 }
 
 /**
@@ -310,5 +340,5 @@ export function renderList(items, containerId, renderItem) {
 export function renderFooter(shop) {
   if (!shop) return;
   const footerName = document.getElementById('footer-name');
-  if (footerName) footerName.textContent = shop.name;
+  if (footerName) footerName.textContent = shop.name || '';
 }
