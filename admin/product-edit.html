@@ -23,6 +23,7 @@
       .form-section-title { font-size: 15px; font-weight: bold; margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
       #promotion-fields { display: none; margin-top: 12px; }
       .hint { font-size: 12px; color: var(--color-text-secondary, #888); margin-top: 4px; }
+      .field-error { font-size: 12px; color: #dc2626; margin-top: 4px; display: none; }
     </style>
   </head>
   <body>
@@ -58,7 +59,11 @@
           <div class="form-row">
             <div class="form-group">
               <label for="p-category">分类 *</label>
-              <input type="text" id="p-category" class="form-control" required placeholder="例如：水果蔬菜" />
+              <!-- 改动：分类从自由输入改为下拉选择，从数据库 categories 表实时读取，
+                   避免店主手打分类名和首页导航栏不一致，导致商品在分类筛选里"消失" -->
+              <select id="p-category" class="form-control" required>
+                <option value="">加载中...</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="p-brand">品牌</label>
@@ -77,9 +82,25 @@
             </div>
           </div>
 
+          <!-- 新增：搜索关键词（对应数据库已有的 aliases 字段），
+               之前这个表单完全没有入口，导致用后台新增的商品搜别名搜不到 -->
+          <div class="form-group">
+            <label for="p-aliases">搜索关键词（别名）</label>
+            <input type="text" id="p-aliases" class="form-control" placeholder="例如：可乐, 快乐水, coke（用逗号分隔）" />
+            <p class="hint">顾客搜索这些词时也能找到这个商品，多个关键词用逗号分隔</p>
+          </div>
+
           <div class="form-group">
             <label for="p-desc">商品描述</label>
             <textarea id="p-desc" class="form-control" rows="4" placeholder="请输入商品的详细介绍..."></textarea>
+          </div>
+
+          <!-- 新增：商品特点（对应数据库已有的 features 字段），
+               弹窗里的"经典原味 / 冰镇更爽口"这类小标签列表，之前也没有录入入口 -->
+          <div class="form-group">
+            <label for="p-features">商品特点</label>
+            <input type="text" id="p-features" class="form-control" placeholder="例如：经典原味, 冰镇更爽口, 铝罐包装（用逗号分隔）" />
+            <p class="hint">会在商品详情页显示为一个个小标签，多个特点用逗号分隔</p>
           </div>
 
           <div class="form-section-title">价格与库存</div>
@@ -92,7 +113,7 @@
             <div class="form-group">
               <label for="p-original-price">原价</label>
               <input type="number" id="p-original-price" class="form-control" step="0.01" placeholder="不打折可留空" />
-              <p class="hint">填了原价 + 开启促销，才会在商品卡上显示划线价</p>
+              <p class="hint">填了原价，会自动算出折扣百分比显示在商品卡上</p>
             </div>
           </div>
 
@@ -126,6 +147,8 @@
             <input type="file" id="p-image-file" accept="image/*" class="form-control" />
             <input type="hidden" id="p-image-url" />
             <img id="p-preview" class="preview-img" alt="图片预览" />
+            <!-- 新增：图片必填的错误提示，之前标了星号却没有实际校验 -->
+            <p id="p-image-error" class="field-error">请上传商品主图</p>
           </div>
 
           <div class="form-section-title">标签与促销</div>
@@ -166,9 +189,11 @@
       // DOM 元素
       const form = document.getElementById('product-form');
       const pageTitle = document.getElementById('page-action-title');
+      const categorySelect = document.getElementById('p-category');
       const fileInput = document.getElementById('p-image-file');
       const urlInput = document.getElementById('p-image-url');
       const previewImg = document.getElementById('p-preview');
+      const imageError = document.getElementById('p-image-error');
       const submitBtn = document.getElementById('submit-btn');
       const isPromotionCheckbox = document.getElementById('p-is-promotion');
       const promotionFields = document.getElementById('promotion-fields');
@@ -183,6 +208,54 @@
         promotionFields.style.display = isPromotionCheckbox.checked ? 'block' : 'none';
       }
       isPromotionCheckbox.addEventListener('change', togglePromotionFields);
+
+      // 新增：把逗号分隔的文字转成数组，自动去掉空白项
+      function parseCommaList(value) {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+      }
+
+      // 新增：从 products 表本身去重读取所有已经在用的分类，
+      // 不假设存在独立的 categories 表（实际数据库里分类只是 products.category 这个文本字段）。
+      // 这样保证下拉框选项永远和首页导航栏实际显示的分类完全一致。
+      async function loadCategories(selectedValue) {
+        try {
+          const { data: rows, error } = await supabase
+            .from('products')
+            .select('category')
+            .not('category', 'is', null);
+
+          if (error) throw error;
+
+          const uniqueCategories = [...new Set((rows || []).map((r) => r.category).filter(Boolean))].sort();
+
+          if (!uniqueCategories.length) {
+            categorySelect.innerHTML = `<option value="">暂无分类，请先手动输入一个新分类名</option>`;
+            return;
+          }
+
+          categorySelect.innerHTML = uniqueCategories
+            .map((name) => `<option value="${name}">${name}</option>`)
+            .join('');
+
+          if (selectedValue) {
+            // 如果是编辑模式下的老分类名，且已经在列表里，直接选中；
+            // 如果是全新分类（比如老数据分类名和现有的不完全一致），额外加一项，避免选中失败导致分类被悄悄改掉
+            if (!uniqueCategories.includes(selectedValue)) {
+              categorySelect.insertAdjacentHTML(
+                'beforeend',
+                `<option value="${selectedValue}">${selectedValue}（当前值）</option>`
+              );
+            }
+            categorySelect.value = selectedValue;
+          }
+        } catch (err) {
+          categorySelect.innerHTML = `<option value="">分类加载失败</option>`;
+          showToast('分类列表加载失败: ' + err.message);
+        }
+      }
 
       async function initPage() {
         // 1. 权限拦截
@@ -207,13 +280,14 @@
             urlInput.value = publicUrl;
             previewImg.src = publicUrl;
             previewImg.style.display = 'block';
+            imageError.style.display = 'none';
             showToast('图片上传成功！');
           } catch (err) {
             showToast('图片上传失败，请重试');
           }
         });
 
-        // 4. 如果是编辑模式，回显 Supabase 数据库中的商品数据
+        // 4. 如果是编辑模式，回显 Supabase 数据库中的商品数据；否则先加载空白分类下拉框
         if (isEditMode) {
           pageTitle.innerText = '📝 编辑商品';
           try {
@@ -224,13 +298,18 @@
               .single();
 
             if (error) throw error;
+
+            // 分类下拉框要等商品数据回来后，才知道该选中哪一项
+            await loadCategories(p ? p.category : null);
+
             if (p) {
               document.getElementById('p-name').value = p.name || '';
-              document.getElementById('p-category').value = p.category || '';
               document.getElementById('p-brand').value = p.brand || '';
               document.getElementById('p-specs').value = p.specs || '';
               document.getElementById('p-barcode').value = p.barcode || '';
+              document.getElementById('p-aliases').value = (p.aliases || []).join(', ');
               document.getElementById('p-desc').value = p.description || '';
+              document.getElementById('p-features').value = (p.features || []).join(', ');
               document.getElementById('p-price').value = p.price ?? '';
               document.getElementById('p-original-price').value = p.original_price ?? '';
               document.getElementById('p-stock').value = p.stock ?? '';
@@ -252,28 +331,49 @@
           } catch (err) {
             showToast('获取商品详情失败: ' + err.message);
           }
+        } else {
+          await loadCategories();
         }
 
         // 5. 表单提交逻辑
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
 
+          // 新增：图片必填校验（之前标了星号但没有真正拦截）
+          if (!urlInput.value) {
+            imageError.style.display = 'block';
+            imageError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          imageError.style.display = 'none';
+
+          const priceValue = parseFloat(document.getElementById('p-price').value);
+          const originalPriceRaw = document.getElementById('p-original-price').value;
+          const originalPriceValue = originalPriceRaw ? parseFloat(originalPriceRaw) : null;
+
+          // 新增：根据销售价格和原价，自动算出折扣比例，不用店主自己心算填百分比
+          let discountValue = 0;
+          if (originalPriceValue && originalPriceValue > priceValue) {
+            discountValue = Number((1 - priceValue / originalPriceValue).toFixed(2));
+          }
+
           const productData = {
             name: document.getElementById('p-name').value,
-            category: document.getElementById('p-category').value,
+            category: categorySelect.value,
             brand: document.getElementById('p-brand').value || null,
             specs: document.getElementById('p-specs').value || null,
             barcode: document.getElementById('p-barcode').value || null,
-            price: parseFloat(document.getElementById('p-price').value),
-            originalPrice: document.getElementById('p-original-price').value
-              ? parseFloat(document.getElementById('p-original-price').value)
-              : null,
+            aliases: parseCommaList(document.getElementById('p-aliases').value),
+            price: priceValue,
+            originalPrice: originalPriceValue,
+            discount: discountValue,
             stock: parseInt(document.getElementById('p-stock').value),
             manufacturer: document.getElementById('p-manufacturer').value || null,
             shelfLife: document.getElementById('p-shelf-life').value || null,
             productionDate: document.getElementById('p-production-date').value || null,
-            image: urlInput.value || 'https://via.placeholder.com/150', // 默认占位图
+            image: urlInput.value,
             description: document.getElementById('p-desc').value,
+            features: parseCommaList(document.getElementById('p-features').value),
             isNew: document.getElementById('p-is-new').checked,
             isHot: document.getElementById('p-is-hot').checked,
             isPromotion: document.getElementById('p-is-promotion').checked,
