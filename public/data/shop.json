@@ -1,16 +1,26 @@
 {
   "id": "shop001",
-  "name": "阳光便利店",
-  "logo": "☀️",
-  "description": "家门口的精品小商店，主营饮料、零食、水果、蔬菜及日用品。每日新鲜上架，欢迎选购！",
-  "phone": "138-0000-0000",
-  "hours": "每天 09:00 - 22:00",
-  "address": "某某市某某区幸福路 88 号",
-  "whatsapp": "13800000000",
-  "telegram": "SunshineShop",
-  "googleMap": "https://maps.google.com/?q=39.9042,116.4074",
+  "name": {
+    "kk": "E-DUKEN ",
+    "ru": "E-DUKEN ",
+    "en": "E-DUKEN "
+  },
+  "description": {
+    "kk": "Жаныңыздағы E-DUKEN",
+    "ru": "E-DUKEN рядом с вами",
+    "en": "E-DUKEN Around You"
+  },
+  "address": {
+    "kk": "Астана қаласы кенесары 221/1",
+    "ru": "Астана қаласы кенесары 221/1",
+    "en": "Астана қаласы кенесары 221/1"
+  },
+  "phone": "+77771122334",
+  "hours": "09:00 - 22:00",
+  "whatsapp": "+77771234567",
+  "telegram": "E-DUKEN",
   "currency": "KZT",
-  "currencyName": "坚戈",
-  "defaultLang": "zh-CN",
+  "currencyName": "KZT",
+  "defaultLang": "kk",
   "theme": "auto"
 }
