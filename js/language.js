@@ -69,27 +69,6 @@ const translations = {
     emptyState: 'No products yet.',
     noProductsFound: 'No matching products found, try another keyword.',
     recommendEmpty: 'Browse more products and we\u2019ll recommend some here.'
-  },
-  'zh-CN': {
-    home: '首页', products: '全部商品', cart: '购物车', favorites: '我的收藏',
-    orders: '我的订单', admin: '管理', search: '搜索商品',
-    searchPlaceholder: '搜索商品、品牌...', categories: '分类', hot: '热门',
-    hotSection: '🏆 热门商品', new: '新品', newSection: '✨ 新品上市',
-    promotions: '优惠', promotionsSection: '🔥 优惠专区', recommendSection: '💡 猜你喜欢',
-    viewAll: '查看全部 →', addToCart: '加入购物车', viewDetails: '查看详情',
-    outOfStock: '暂时缺货', inStock: '有货', favorite: '收藏',
-    emptyCart: '购物车为空', emptyFavorites: '暂无收藏', emptyOrders: '暂无订单',
-    shopTitle: '阳光便利店 | SmartShop', shopName: '阳光便利店',
-    shopSlogan: '家门口的数字货架',
-    shopInfo: '店铺信息',
-    quickContact: '快速联系',
-    googleMapNav: 'Google Map 导航',
-    allRightsReserved: '保留所有权利。',
-    productDesc: '商品介绍',
-    productFeatures: '商品特点',
-    emptyState: '暂无相关商品。',
-    noProductsFound: '没有找到相关商品，换个关键词试试吧。',
-    recommendEmpty: '浏览更多商品后，会在这里为您推荐。'
   }
 };
 
