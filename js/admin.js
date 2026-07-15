@@ -7,6 +7,7 @@ import { supabase } from './supabaseClient.js';
 import { setState } from './state.js';
 import { showToast } from './utils.js';
 import { KEYS, setJson, getJson } from './storage.js'; // 保留供其他地方可能需要的状态
+import { t } from './language.js'; // 新增：用于翻译"有货/缺货""编辑""删除"这些核心操作文字
 
 /**
  * 映射前端驼峰命名的对象到数据库下划线字段
@@ -140,6 +141,7 @@ export async function renderAdminProducts() {
       .map((p) => {
         // 如果图片是普通的相对路径或云端绝对URL，按需拼接
         const imgUrl = p.image.startsWith('http') ? p.image : `${import.meta.env.BASE_URL}${p.image}`;
+        // 改动：状态徽章文字、编辑/删除按钮文字改用 t() 翻译，跟随后台当前语言（哈语/俄语）显示
         return `
           <tr data-id="${p.id}">
             <td><img src="${imgUrl}" alt="${p.name}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;" /></td>
@@ -147,10 +149,10 @@ export async function renderAdminProducts() {
             <td>${p.category}</td>
             <td>${p.price}</td>
             <td>${p.stock}</td>
-            <td><span class="status-badge ${p.stock > 0 ? 'completed' : 'cancelled'}">${p.stock > 0 ? '有货' : '缺货'}</span></td>
+            <td><span class="status-badge ${p.stock > 0 ? 'completed' : 'cancelled'}">${p.stock > 0 ? t('inStock') : t('outOfStock')}</span></td>
             <td>
-              <button type="button" class="btn btn-secondary" data-action="edit" data-id="${p.id}">编辑</button>
-              <button type="button" class="btn btn-danger" data-action="delete" data-id="${p.id}">删除</button>
+              <button type="button" class="btn btn-secondary" data-action="edit" data-id="${p.id}">${t('editBtn')}</button>
+              <button type="button" class="btn btn-danger" data-action="delete" data-id="${p.id}">${t('deleteBtn')}</button>
             </td>
           </tr>
         `;
