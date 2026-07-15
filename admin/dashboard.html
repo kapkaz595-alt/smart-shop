@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="kk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>后台管理 | SmartShop</title>
+    <title>Басқару панелі | SmartShop</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
@@ -13,6 +13,14 @@
       .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
       .admin-table th { background: var(--color-bg); font-weight: 700; }
       .admin-section { margin-bottom: 40px; }
+      .admin-lang-picker select {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
@@ -23,11 +31,18 @@
             <div class="brand-logo">⚙️</div>
             <div class="brand-text">
               <h1 class="brand-name">SmartShop</h1>
-              <p class="brand-slogan">后台管理</p>
+              <p class="brand-slogan" data-i18n="adminPanel">Басқару панелі</p>
             </div>
           </a>
           <div class="header-actions">
-            <button id="logout-btn" type="button" class="btn btn-secondary">退出登录</button>
+            <!-- 新增：后台语言切换器，只提供哈语/俄语 -->
+            <div class="admin-lang-picker">
+              <select id="admin-lang-select" aria-label="Language Selector">
+                <option value="kk">Қазақша</option>
+                <option value="ru">Русский</option>
+              </select>
+            </div>
+            <button id="logout-btn" type="button" class="btn btn-secondary" data-i18n="logoutButton">Шығу</button>
           </div>
         </div>
       </div>
@@ -35,22 +50,22 @@
 
     <main class="main-content">
       <section class="page-section container">
-        <h2 class="page-title">📦 商品管理</h2>
+        <h2 class="page-title" data-i18n="productManagement">📦 Тауарларды басқару</h2>
         <div class="admin-section">
           <!-- 💡 移除了原本的 onclick 弹窗，加上了 id 方便在脚本中控制跳转 -->
-          <button id="add-product-btn" type="button" class="btn btn-primary">+ 新增商品</button>
+          <button id="add-product-btn" type="button" class="btn btn-primary" data-i18n="addProductBtn">+ Жаңа тауар қосу</button>
         </div>
         <div style="overflow-x:auto;">
           <table class="admin-table">
             <thead>
               <tr>
-                <th>图片</th>
-                <th>名称</th>
-                <th>分类</th>
-                <th>价格</th>
-                <th>库存</th>
-                <th>状态</th>
-                <th>操作</th>
+                <th data-i18n="colImage">Сурет</th>
+                <th data-i18n="colName">Атауы</th>
+                <th data-i18n="colCategory">Санат</th>
+                <th data-i18n="colPrice">Бағасы</th>
+                <th data-i18n="colStock">Қалдық</th>
+                <th data-i18n="colStatus">Күйі</th>
+                <th data-i18n="colActions">Әрекет</th>
               </tr>
             </thead>
             <tbody id="admin-product-list"></tbody>
@@ -61,6 +76,18 @@
 
     <script type="module">
       import { checkAdmin, logout, renderAdminProducts } from '../js/admin.js';
+      import { initLanguage, setLanguage, getLanguage } from '../js/language.js';
+
+      // 初始化后台语言（复用前台同一套翻译字典和存储机制）
+      initLanguage();
+      const langSelect = document.getElementById('admin-lang-select');
+      langSelect.value = getLanguage();
+      if (!['kk', 'ru'].includes(langSelect.value)) {
+        langSelect.value = 'kk';
+      }
+      langSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+      });
 
       // 1. 拦截未登录用户
       async function initDashboard() {
