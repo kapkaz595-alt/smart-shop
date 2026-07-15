@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="kk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>管理员登录 | SmartShop</title>
+    <title>Әкімші кірісі | SmartShop</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
@@ -24,23 +24,44 @@
         margin-bottom: 24px;
         text-align: center;
       }
+      .admin-lang-picker {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 16px;
+      }
+      .admin-lang-picker select {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
     <main class="main-content">
       <div class="container">
+        <!-- 新增：后台语言切换器，只提供哈语/俄语（后台面向本地店主，不需要英语） -->
+        <div class="admin-lang-picker">
+          <select id="admin-lang-select" aria-label="Language Selector">
+            <option value="kk">Қазақша</option>
+            <option value="ru">Русский</option>
+          </select>
+        </div>
+
         <div class="login-card">
-          <h1 class="login-title">🔐 管理员登录</h1>
+          <h1 class="login-title" data-i18n="adminLoginTitle">🔐 Әкімші кірісі</h1>
           <form id="login-form">
             <div class="form-group">
-              <label for="email">邮箱</label>
+              <label for="email" data-i18n="emailLabel">Email</label>
               <input id="email" name="email" type="email" required placeholder="kapkaz595@example.com" autocomplete="username" />
             </div>
             <div class="form-group">
-              <label for="password">密码</label>
-              <input id="password" name="password" type="password" required placeholder="请输入密码" autocomplete="current-password" />
+              <label for="password" data-i18n="passwordLabel">Құпия сөз</label>
+              <input id="password" name="password" type="password" required autocomplete="current-password" />
             </div>
-            <button type="submit" class="btn btn-primary btn-block">登录</button>
+            <button type="submit" class="btn btn-primary btn-block" data-i18n="loginButton">Кіру</button>
           </form>
         </div>
       </div>
@@ -48,6 +69,22 @@
 
     <script type="module">
       import { login } from '../js/admin.js';
+      import { initLanguage, setLanguage, getLanguage } from '../js/language.js';
+
+      // 初始化后台语言（复用前台同一套翻译字典和存储机制，
+      // 所以顾客在前台选的语言，店主在后台默认也会看到同一种，不用重复选）
+      initLanguage();
+      const langSelect = document.getElementById('admin-lang-select');
+      langSelect.value = getLanguage();
+      // 后台只提供哈语/俄语；如果当前存的是英语（前台切换过），下拉框找不到对应项时退回显示哈语
+      if (!['kk', 'ru'].includes(langSelect.value)) {
+        langSelect.value = 'kk';
+      }
+
+      langSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+      });
+
       document.getElementById('login-form').addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
