@@ -29,7 +29,7 @@ const translations = {
     recommendEmpty: 'Көбірек тауар қарағаннан кейін, осында сізге ұсыныстар шығады.',
 
     // ---- Админ панелі (жаңа) ----
-    adminLoginTitle: '🔐 Әкімші кірісі',
+    adminLoginTitle: '🔐 Әдминыстратор',
     emailLabel: 'Email',
     passwordLabel: 'Құпия сөз',
     loginButton: 'Кіру',
