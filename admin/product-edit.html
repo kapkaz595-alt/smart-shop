@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="kk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>商品编辑 | SmartShop 后台</title>
+    <title>Тауар өзгерту | SmartShop</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
@@ -24,6 +24,14 @@
       #promotion-fields { display: none; margin-top: 12px; }
       .hint { font-size: 12px; color: var(--color-text-secondary, #888); margin-top: 4px; }
       .field-error { font-size: 12px; color: #dc2626; margin-top: 4px; display: none; }
+      .admin-lang-picker select {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
@@ -34,11 +42,18 @@
             <div class="brand-logo">⚙️</div>
             <div class="brand-text">
               <h1 class="brand-name">SmartShop</h1>
-              <p class="brand-slogan">商品编辑</p>
+              <p class="brand-slogan" data-i18n="adminPanel">Басқару панелі</p>
             </div>
           </a>
           <div class="header-actions">
-            <button id="back-btn" type="button" class="btn btn-secondary">返回列表</button>
+            <!-- 新增：后台语言切换器，只提供哈语/俄语 -->
+            <div class="admin-lang-picker">
+              <select id="admin-lang-select" aria-label="Language Selector">
+                <option value="kk">Қазақша</option>
+                <option value="ru">Русский</option>
+              </select>
+            </div>
+            <button id="back-btn" type="button" class="btn btn-secondary" data-i18n="backToList">Тізімге қайту</button>
           </div>
         </div>
       </div>
@@ -46,131 +61,125 @@
 
     <main class="main-content">
       <section class="page-section container">
-        <h2 id="page-action-title" class="page-title">📦 新增商品</h2>
+        <h2 id="page-action-title" class="page-title" data-i18n="newProductTitle">📦 Жаңа тауар қосу</h2>
 
         <form id="product-form" class="edit-form">
-          <div class="form-section-title">基本信息</div>
+          <div class="form-section-title" data-i18n="basicInfoSection">Негізгі ақпарат</div>
 
           <div class="form-group">
-            <label for="p-name">商品名称 *</label>
-            <input type="text" id="p-name" class="form-control" required placeholder="例如：新鲜大苹果" />
+            <label for="p-name" data-i18n="productNameLabel">Тауар атауы *</label>
+            <input type="text" id="p-name" class="form-control" required />
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-category">分类 *</label>
-              <!-- 改动：分类从自由输入改为下拉选择，从数据库 categories 表实时读取，
-                   避免店主手打分类名和首页导航栏不一致，导致商品在分类筛选里"消失" -->
+              <label for="p-category" data-i18n="categoryLabel">Санат *</label>
+              <!-- 分类下拉框选项是数据库里的实际分类名（目前是中文数据），不属于界面翻译范畴，保持原样 -->
               <select id="p-category" class="form-control" required>
-                <option value="">加载中...</option>
+                <option value="">...</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="p-brand">品牌</label>
-              <input type="text" id="p-brand" class="form-control" placeholder="例如：农夫山泉" />
+              <label for="p-brand" data-i18n="brandLabel">Бренд</label>
+              <input type="text" id="p-brand" class="form-control" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-specs">规格</label>
-              <input type="text" id="p-specs" class="form-control" placeholder="例如：500ml / 一箱24瓶" />
+              <label for="p-specs" data-i18n="specsLabel">Сипаттама (көлемі/саны)</label>
+              <input type="text" id="p-specs" class="form-control" />
             </div>
             <div class="form-group">
-              <label for="p-barcode">条码</label>
-              <input type="text" id="p-barcode" class="form-control" placeholder="商品条形码" />
+              <label for="p-barcode" data-i18n="barcodeLabel">Штрих-код</label>
+              <input type="text" id="p-barcode" class="form-control" />
             </div>
           </div>
 
-          <!-- 新增：搜索关键词（对应数据库已有的 aliases 字段），
-               之前这个表单完全没有入口，导致用后台新增的商品搜别名搜不到 -->
           <div class="form-group">
-            <label for="p-aliases">搜索关键词（别名）</label>
-            <input type="text" id="p-aliases" class="form-control" placeholder="例如：可乐, 快乐水, coke（用逗号分隔）" />
-            <p class="hint">顾客搜索这些词时也能找到这个商品，多个关键词用逗号分隔</p>
+            <label for="p-aliases" data-i18n="aliasesLabel">Іздеу кілт сөздері</label>
+            <input type="text" id="p-aliases" class="form-control" />
+            <p class="hint" data-i18n="aliasesHint">Осы сөздер бойынша да табылады, үтірмен бөліңіз</p>
           </div>
 
           <div class="form-group">
-            <label for="p-desc">商品描述</label>
-            <textarea id="p-desc" class="form-control" rows="4" placeholder="请输入商品的详细介绍..."></textarea>
+            <label for="p-desc" data-i18n="descLabel">Тауар сипаттамасы</label>
+            <textarea id="p-desc" class="form-control" rows="4"></textarea>
           </div>
 
-          <!-- 新增：商品特点（对应数据库已有的 features 字段），
-               弹窗里的"经典原味 / 冰镇更爽口"这类小标签列表，之前也没有录入入口 -->
           <div class="form-group">
-            <label for="p-features">商品特点</label>
-            <input type="text" id="p-features" class="form-control" placeholder="例如：经典原味, 冰镇更爽口, 铝罐包装（用逗号分隔）" />
-            <p class="hint">会在商品详情页显示为一个个小标签，多个特点用逗号分隔</p>
+            <label for="p-features" data-i18n="featuresLabel">Тауар ерекшеліктері</label>
+            <input type="text" id="p-features" class="form-control" />
+            <p class="hint" data-i18n="featuresHint">Тауар бетінде белгіше ретінде көрсетіледі, үтірмен бөліңіз</p>
           </div>
 
-          <div class="form-section-title">价格与库存</div>
+          <div class="form-section-title" data-i18n="priceStockSection">Баға мен қалдық</div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-price">销售价格 *</label>
+              <label for="p-price" data-i18n="priceLabel">Сату бағасы *</label>
               <input type="number" id="p-price" class="form-control" step="0.01" required placeholder="0.00" />
             </div>
             <div class="form-group">
-              <label for="p-original-price">原价</label>
-              <input type="number" id="p-original-price" class="form-control" step="0.01" placeholder="不打折可留空" />
-              <p class="hint">填了原价，会自动算出折扣百分比显示在商品卡上</p>
+              <label for="p-original-price" data-i18n="originalPriceLabel">Бастапқы баға</label>
+              <input type="number" id="p-original-price" class="form-control" step="0.01" />
+              <p class="hint" data-i18n="originalPriceHint">Толтырсаңыз, жеңілдік пайызы автоматты есептеледі</p>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="p-stock">商品库存 *</label>
-            <input type="number" id="p-stock" class="form-control" required placeholder="100" />
+            <label for="p-stock" data-i18n="stockLabel">Қалдық саны *</label>
+            <input type="number" id="p-stock" class="form-control" required />
           </div>
 
-          <div class="form-section-title">生产信息</div>
+          <div class="form-section-title" data-i18n="productionInfoSection">Өндіріс туралы ақпарат</div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-manufacturer">生产厂家</label>
-              <input type="text" id="p-manufacturer" class="form-control" placeholder="例如：某某食品有限公司" />
+              <label for="p-manufacturer" data-i18n="manufacturerLabel">Өндіруші</label>
+              <input type="text" id="p-manufacturer" class="form-control" />
             </div>
             <div class="form-group">
-              <label for="p-shelf-life">保质期</label>
-              <input type="text" id="p-shelf-life" class="form-control" placeholder="例如：12个月 / 7天" />
+              <label for="p-shelf-life" data-i18n="shelfLifeLabel">Сақтау мерзімі</label>
+              <input type="text" id="p-shelf-life" class="form-control" />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="p-production-date">生产日期</label>
+            <label for="p-production-date" data-i18n="productionDateLabel">Өндірілген күні</label>
             <input type="date" id="p-production-date" class="form-control" />
           </div>
 
-          <div class="form-section-title">图片</div>
+          <div class="form-section-title" data-i18n="imageSection">Сурет</div>
 
           <div class="form-group">
-            <label for="p-image-file">商品主图 *</label>
+            <label for="p-image-file" data-i18n="mainImageLabel">Негізгі сурет *</label>
             <input type="file" id="p-image-file" accept="image/*" class="form-control" />
             <input type="hidden" id="p-image-url" />
-            <img id="p-preview" class="preview-img" alt="图片预览" />
-            <!-- 新增：图片必填的错误提示，之前标了星号却没有实际校验 -->
-            <p id="p-image-error" class="field-error">请上传商品主图</p>
+            <img id="p-preview" class="preview-img" alt="" />
+            <p id="p-image-error" class="field-error" data-i18n="imageRequiredError">Тауардың негізгі суретін жүктеңіз</p>
           </div>
 
-          <div class="form-section-title">标签与促销</div>
+          <div class="form-section-title" data-i18n="tagsPromotionSection">Белгілер мен акциялар</div>
 
           <div class="form-group">
             <div class="checkbox-group">
-              <label class="checkbox-label"><input type="checkbox" id="p-is-new" /> 新品✨</label>
-              <label class="checkbox-label"><input type="checkbox" id="p-is-hot" /> 热销🔥</label>
-              <label class="checkbox-label"><input type="checkbox" id="p-is-promotion" /> 打折促销🏷️</label>
+              <label class="checkbox-label"><input type="checkbox" id="p-is-new" /> <span data-i18n="isNewLabel">Жаңа ✨</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="p-is-hot" /> <span data-i18n="isHotLabel">Танымал 🔥</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="p-is-promotion" /> <span data-i18n="isPromotionLabel">Жеңілдік 🏷️</span></label>
             </div>
 
             <div id="promotion-fields">
               <div class="form-group" style="margin-top:16px;">
-                <label for="p-promotion-type">促销说明</label>
-                <input type="text" id="p-promotion-type" class="form-control" placeholder="例如：限时8折 / 满30减5 / 买一送一" />
+                <label for="p-promotion-type" data-i18n="promotionTypeLabel">Акция сипаттамасы</label>
+                <input type="text" id="p-promotion-type" class="form-control" />
               </div>
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" id="submit-btn" class="btn btn-primary">保存商品</button>
-            <button type="button" id="cancel-btn" class="btn btn-secondary">取消</button>
+            <button type="submit" id="submit-btn" class="btn btn-primary" data-i18n="saveBtn">Сақтау</button>
+            <button type="button" id="cancel-btn" class="btn btn-secondary" data-i18n="cancelBtn">Бас тарту</button>
           </div>
         </form>
       </section>
@@ -180,6 +189,21 @@
       import { supabase } from '../js/supabaseClient.js';
       import { checkAdmin, addProduct, updateProduct, uploadImage } from '../js/admin.js';
       import { showToast } from '../js/utils.js';
+      import { initLanguage, setLanguage, getLanguage, t } from '../js/language.js';
+
+      // 初始化后台语言（复用前台同一套翻译字典和存储机制）
+      initLanguage();
+      const langSelect = document.getElementById('admin-lang-select');
+      langSelect.value = getLanguage();
+      if (!['kk', 'ru'].includes(langSelect.value)) {
+        langSelect.value = 'kk';
+      }
+      langSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+        // 语言切换后，重新应用一次页面标题（因为标题在新增/编辑模式下是 JS 动态设置的，
+        // 不是靠 data-i18n 自动刷新，需要手动重新赋值）
+        pageTitle.innerText = isEditMode ? t('editProductTitle') : t('newProductTitle');
+      });
 
       // 获取 URL 参数中的商品 ID (如果有就是编辑模式，没有就是新增模式)
       const urlParams = new URLSearchParams(window.location.search);
@@ -209,7 +233,7 @@
       }
       isPromotionCheckbox.addEventListener('change', togglePromotionFields);
 
-      // 新增：把逗号分隔的文字转成数组，自动去掉空白项
+      // 把逗号分隔的文字转成数组，自动去掉空白项
       function parseCommaList(value) {
         return value
           .split(',')
@@ -217,9 +241,7 @@
           .filter((item) => item.length > 0);
       }
 
-      // 新增：从 products 表本身去重读取所有已经在用的分类，
-      // 不假设存在独立的 categories 表（实际数据库里分类只是 products.category 这个文本字段）。
-      // 这样保证下拉框选项永远和首页导航栏实际显示的分类完全一致。
+      // 从 products 表本身去重读取所有已经在用的分类，不假设存在独立的 categories 表
       async function loadCategories(selectedValue) {
         try {
           const { data: rows, error } = await supabase
@@ -232,7 +254,7 @@
           const uniqueCategories = [...new Set((rows || []).map((r) => r.category).filter(Boolean))].sort();
 
           if (!uniqueCategories.length) {
-            categorySelect.innerHTML = `<option value="">暂无分类，请先手动输入一个新分类名</option>`;
+            categorySelect.innerHTML = `<option value="">-</option>`;
             return;
           }
 
@@ -241,18 +263,16 @@
             .join('');
 
           if (selectedValue) {
-            // 如果是编辑模式下的老分类名，且已经在列表里，直接选中；
-            // 如果是全新分类（比如老数据分类名和现有的不完全一致），额外加一项，避免选中失败导致分类被悄悄改掉
             if (!uniqueCategories.includes(selectedValue)) {
               categorySelect.insertAdjacentHTML(
                 'beforeend',
-                `<option value="${selectedValue}">${selectedValue}（当前值）</option>`
+                `<option value="${selectedValue}">${selectedValue}</option>`
               );
             }
             categorySelect.value = selectedValue;
           }
         } catch (err) {
-          categorySelect.innerHTML = `<option value="">分类加载失败</option>`;
+          categorySelect.innerHTML = `<option value="">-</option>`;
           showToast('分类列表加载失败: ' + err.message);
         }
       }
@@ -289,7 +309,7 @@
 
         // 4. 如果是编辑模式，回显 Supabase 数据库中的商品数据；否则先加载空白分类下拉框
         if (isEditMode) {
-          pageTitle.innerText = '📝 编辑商品';
+          pageTitle.innerText = t('editProductTitle');
           try {
             const { data: p, error } = await supabase
               .from('products')
@@ -299,7 +319,6 @@
 
             if (error) throw error;
 
-            // 分类下拉框要等商品数据回来后，才知道该选中哪一项
             await loadCategories(p ? p.category : null);
 
             if (p) {
@@ -332,6 +351,7 @@
             showToast('获取商品详情失败: ' + err.message);
           }
         } else {
+          pageTitle.innerText = t('newProductTitle');
           await loadCategories();
         }
 
@@ -339,7 +359,7 @@
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
 
-          // 新增：图片必填校验（之前标了星号但没有真正拦截）
+          // 图片必填校验
           if (!urlInput.value) {
             imageError.style.display = 'block';
             imageError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -351,7 +371,7 @@
           const originalPriceRaw = document.getElementById('p-original-price').value;
           const originalPriceValue = originalPriceRaw ? parseFloat(originalPriceRaw) : null;
 
-          // 新增：根据销售价格和原价，自动算出折扣比例，不用店主自己心算填百分比
+          // 根据销售价格和原价，自动算出折扣比例
           let discountValue = 0;
           if (originalPriceValue && originalPriceValue > priceValue) {
             discountValue = Number((1 - priceValue / originalPriceValue).toFixed(2));
@@ -383,7 +403,7 @@
           };
 
           submitBtn.disabled = true;
-          submitBtn.textContent = '保存中...';
+          submitBtn.textContent = t('savingBtn');
 
           try {
             let success;
@@ -398,7 +418,7 @@
             }
           } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = '保存商品';
+            submitBtn.textContent = t('saveBtn');
           }
         });
       }
