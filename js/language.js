@@ -28,6 +28,27 @@ const translations = {
     noProductsFound: 'Тиісті тауар табылмады, басқа кілт сөз қолданып көріңіз.',
     recommendEmpty: 'Көбірек тауар қарағаннан кейін, осында сізге ұсыныстар шығады.',
 
+    // ---- Себет беті (жаңа) ----
+    cartPageTitle: '🛒 Себет',
+    totalLabel: 'Барлығы:',
+    clearCartBtn: 'Себетті тазалау',
+    checkout: 'Төлеуге өту',
+    quickLinks: 'Жылдам сілтемелер',
+    submitOrderTitle: 'Тапсырысты растау',
+    customerNameLabel: 'Тегі, аты',
+    customerNamePlaceholder: 'Атыңызды енгізіңіз',
+    contactPhoneLabel: 'Байланыс телефоны',
+    phonePlaceholder: 'Телефон нөміріңізді енгізіңіз',
+    deliveryTypeLabel: 'Алу тәсілі',
+    selfPickup: 'Дүкеннен өзі алу',
+    homeDelivery: 'Үйге жеткізу',
+    noteLabel: 'Ескертпе',
+    notePlaceholder: 'Мысалы: тәтті болмасын, аулаға дейін жеткізіңіз...',
+    kaspiTitle: '💳 QR арқылы төлеу',
+    kaspiDesc: 'Тапсырыс дүкен иесінің WhatsApp-ына жіберілді. Kaspi қолданбасы арқылы QR кодты сканерлеп төлеңіз, төлегеннен кейін WhatsApp-та хабарлаңыз.',
+    itemsUnit: 'дана',
+    remove: 'Жою',
+
     // ---- Админ панелі (жаңа) ----
     adminLoginTitle: '🔐 Әдминыстратор',
     emailLabel: 'Email',
@@ -102,6 +123,27 @@ const translations = {
     noProductsFound: 'Товары не найдены, попробуйте другой запрос.',
     recommendEmpty: 'Просмотрите больше товаров, и здесь появятся рекомендации.',
 
+    // ---- Страница корзины (новое) ----
+    cartPageTitle: '🛒 Корзина',
+    totalLabel: 'Итого:',
+    clearCartBtn: 'Очистить корзину',
+    checkout: 'Перейти к оплате',
+    quickLinks: 'Быстрые ссылки',
+    submitOrderTitle: 'Оформить заказ',
+    customerNameLabel: 'Имя клиента',
+    customerNamePlaceholder: 'Введите имя',
+    contactPhoneLabel: 'Контактный телефон',
+    phonePlaceholder: 'Введите номер телефона',
+    deliveryTypeLabel: 'Способ получения',
+    selfPickup: 'Самовывоз',
+    homeDelivery: 'Доставка на дом',
+    noteLabel: 'Примечание',
+    notePlaceholder: 'Например: без остроты, доставить до подъезда...',
+    kaspiTitle: '💳 Оплата по QR-коду',
+    kaspiDesc: 'Заказ отправлен владельцу магазина в WhatsApp. Оплатите через приложение Kaspi, отсканировав QR-код, и сообщите об оплате в WhatsApp.',
+    itemsUnit: 'шт.',
+    remove: 'Удалить',
+
     // ---- Админ-панель (новое) ----
     adminLoginTitle: '🔐 Вход для администратора',
     emailLabel: 'Email',
@@ -174,7 +216,28 @@ const translations = {
     productFeatures: 'Product Features',
     emptyState: 'No products yet.',
     noProductsFound: 'No matching products found, try another keyword.',
-    recommendEmpty: 'Browse more products and we\u2019ll recommend some here.'
+    recommendEmpty: 'Browse more products and we\u2019ll recommend some here.',
+
+    // ---- Cart page (new) ----
+    cartPageTitle: '🛒 Cart',
+    totalLabel: 'Total:',
+    clearCartBtn: 'Clear Cart',
+    checkout: 'Checkout',
+    quickLinks: 'Quick Links',
+    submitOrderTitle: 'Submit Order',
+    customerNameLabel: 'Customer Name',
+    customerNamePlaceholder: 'Enter your name',
+    contactPhoneLabel: 'Phone Number',
+    phonePlaceholder: 'Enter phone number',
+    deliveryTypeLabel: 'Delivery Method',
+    selfPickup: 'Pickup In-Store',
+    homeDelivery: 'Home Delivery',
+    noteLabel: 'Note',
+    notePlaceholder: 'e.g. no spicy, deliver to the gate...',
+    kaspiTitle: '💳 Scan to Pay',
+    kaspiDesc: 'Your order has been sent to the shop owner via WhatsApp. Please scan the QR code in the Kaspi app to pay, then confirm payment via WhatsApp.',
+    itemsUnit: 'items',
+    remove: 'Remove'
   }
 };
 
