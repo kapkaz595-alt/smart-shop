@@ -7,6 +7,7 @@ import { KEYS, getJson, setJson } from './storage.js';
 import { setState } from './state.js';
 import { showToast, formatPrice } from './utils.js';
 import { renderProducts } from './render.js';
+import { t } from './language.js';
 
 /**
  * 从 localStorage 加载购物车到 state。
@@ -112,11 +113,13 @@ export function renderCartList(cart, callbacks = {}) {
   if (!container) return;
 
   if (!cart.length) {
-    container.innerHTML = `<p class="empty-state" data-i18n="emptyCart">购物车还是空的，快去挑选商品吧。</p>`;
+    // 直接用 t() 取当前语言文案，不依赖后续的 applyTranslations 扫描时机
+    container.innerHTML = `<p class="empty-state" data-i18n="emptyCart">${t('emptyCart')}</p>`;
     return;
   }
 
-  const currencyName = '坚戈';
+  // 统一用 ₸ 符号，跟商品卡片（render.js）保持一致，不再用中文"坚戈"
+  const currencySymbol = '₸';
 
   container.innerHTML = cart
     .map(
@@ -126,7 +129,7 @@ export function renderCartList(cart, callbacks = {}) {
         <div class="list-card-body">
           <h4 class="list-card-title">${item.name}</h4>
           <p class="list-card-meta">${item.specs}</p>
-          <p class="list-card-price">${item.price} ${currencyName}</p>
+          <p class="list-card-price">${item.price} ${currencySymbol}</p>
         </div>
         <div class="list-card-actions">
           <div class="quantity-control">
@@ -134,7 +137,7 @@ export function renderCartList(cart, callbacks = {}) {
             <input type="text" value="${item.quantity}" readonly />
             <button type="button" data-action="increase" data-id="${item.id}">+</button>
           </div>
-          <button type="button" class="remove-btn" data-action="remove" data-id="${item.id}" aria-label="删除">🗑️</button>
+          <button type="button" class="remove-btn" data-action="remove" data-id="${item.id}" aria-label="${t('remove')}">🗑️</button>
         </div>
       </div>
     `,
@@ -162,8 +165,9 @@ export function renderCartSummary(cart) {
   const total = calculateTotal(cart);
   const count = calculateCount(cart);
 
-  if (totalEl) totalEl.textContent = `${formatPrice(total)} 坚戈`;
-  if (countEl) countEl.textContent = `${count} 件`;
+  // 同样统一用 ₸ 符号，数量单位改用 t('itemsUnit') 按语言切换
+  if (totalEl) totalEl.textContent = `${formatPrice(total)} ₸`;
+  if (countEl) countEl.textContent = `${count} ${t('itemsUnit')}`;
 
   const badge = document.querySelector('#cart-btn .badge');
   if (badge) {
@@ -173,4 +177,3 @@ export function renderCartSummary(cart) {
 }
 
 export { renderProducts };
-
