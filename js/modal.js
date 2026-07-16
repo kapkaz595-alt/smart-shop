@@ -1,9 +1,11 @@
 // ==========================================================================
-// modal.js (已修复：增加元素存在性校验，防止报错；补全收藏/加购物车按钮绑定)
+// modal.js (已修复：增加元素存在性校验，防止报错；补全收藏/加购物车按钮绑定；接入多语言)
 // ==========================================================================
 
 import { resolveImagePath, formatPrice } from './utils.js';
 import { getState, setState } from './state.js';
+import { t } from './language.js';
+import { getProductCategoryName } from './render.js';
 
 // 获取 DOM 元素
 const modal = document.getElementById('product-modal');
@@ -24,7 +26,7 @@ const modalAddCart = document.getElementById('modal-add-cart');
 const modalClose = document.getElementById('modal-close');
 
 let currentProduct = null;
-// 新增：保存 openProduct 时传入的回调，供按钮点击事件使用
+// 保存 openProduct 时传入的回调，供按钮点击事件使用
 let currentCallbacks = {};
 
 /**
@@ -34,26 +36,26 @@ export function openProduct(product, callbacks = {}) {
   if (!modal) return; // 安全检查：如果页面没弹窗，直接返回
 
   currentProduct = product;
-  currentCallbacks = callbacks; // 新增：保存回调，供收藏/加购物车按钮使用
+  currentCallbacks = callbacks;
   const inStock = product.stock > 0;
   const isFav = getState().favorites.includes(product.id);
   const shop = getState().shop || {};
 
   if (modalImage) modalImage.src = resolveImagePath(product.image);
-  if (modalCategory) modalCategory.textContent = product.category;
+  if (modalCategory) modalCategory.textContent = getProductCategoryName(product.category);
   if (modalTitle) modalTitle.textContent = product.name;
   if (modalBrand) modalBrand.textContent = `${product.brand} · ${product.specs}`;
-  if (modalPrice) modalPrice.textContent = `${formatPrice(product.price)} ${shop.currencyName || '坚戈'}`;
-  if (modalOriginalPrice) modalOriginalPrice.textContent = product.originalPrice > product.price ? `${formatPrice(product.originalPrice)} ${shop.currencyName || '坚戈'}` : '';
+  if (modalPrice) modalPrice.textContent = `${formatPrice(product.price)} ₸`;
+  if (modalOriginalPrice) modalOriginalPrice.textContent = product.originalPrice > product.price ? `${formatPrice(product.originalPrice)} ₸` : '';
   if (modalDiscount) {
     modalDiscount.textContent = product.discount > 0 ? `-${Math.round(product.discount * 100)}%` : '';
     modalDiscount.hidden = product.discount <= 0;
   }
   if (modalStock) {
-    modalStock.textContent = inStock ? `库存：${product.stock} 件` : '暂时缺货';
+    modalStock.textContent = inStock ? t('stockCountLabel').replace('{count}', product.stock) : t('outOfStock');
     modalStock.className = `modal-stock ${inStock ? 'in-stock' : 'out-stock'}`;
   }
-  if (modalDesc) modalDesc.textContent = product.description || '暂无商品介绍。';
+  if (modalDesc) modalDesc.textContent = product.description || t('noDescription');
 
   if (modalFeatures) {
     modalFeatures.innerHTML = product.features && product.features.length
@@ -63,20 +65,20 @@ export function openProduct(product, callbacks = {}) {
 
   if (modalMeta) {
     modalMeta.innerHTML = `
-      <div class="modal-meta-item"><div class="modal-meta-label">条形码</div><div class="modal-meta-value">${product.barcode || '-'}</div></div>
-      <div class="modal-meta-item"><div class="modal-meta-label">生产日期</div><div class="modal-meta-value">${product.productionDate || '-'}</div></div>
-      <div class="modal-meta-item"><div class="modal-meta-label">保质期</div><div class="modal-meta-value">${product.shelfLife || '-'}</div></div>
-      <div class="modal-meta-item"><div class="modal-meta-label">厂家</div><div class="modal-meta-value">${product.manufacturer || '-'}</div></div>
+      <div class="modal-meta-item"><div class="modal-meta-label">${t('barcodeLabel')}</div><div class="modal-meta-value">${product.barcode || '-'}</div></div>
+      <div class="modal-meta-item"><div class="modal-meta-label">${t('productionDateLabel')}</div><div class="modal-meta-value">${product.productionDate || '-'}</div></div>
+      <div class="modal-meta-item"><div class="modal-meta-label">${t('shelfLifeLabel')}</div><div class="modal-meta-value">${product.shelfLife || '-'}</div></div>
+      <div class="modal-meta-item"><div class="modal-meta-label">${t('manufacturerLabel')}</div><div class="modal-meta-value">${product.manufacturer || '-'}</div></div>
     `;
   }
 
   if (modalFavorite) {
-    modalFavorite.innerHTML = `${isFav ? '❤️' : '🤍'} ${isFav ? '已收藏' : '收藏'}`;
+    modalFavorite.innerHTML = `${isFav ? '❤️' : '🤍'} ${isFav ? t('favoritedLabel') : t('favorite')}`;
     modalFavorite.classList.toggle('active', isFav);
   }
   if (modalAddCart) {
     modalAddCart.disabled = !inStock;
-    modalAddCart.textContent = inStock ? '🛒 加入购物车' : '暂时缺货';
+    modalAddCart.textContent = inStock ? `🛒 ${t('addToCart')}` : t('outOfStock');
   }
 
   renderGallery(product.images || [product.image]);
@@ -93,7 +95,7 @@ export function openProduct(product, callbacks = {}) {
 function refreshFavoriteButton() {
   if (!modalFavorite || !currentProduct) return;
   const isFav = getState().favorites.includes(currentProduct.id);
-  modalFavorite.innerHTML = `${isFav ? '❤️' : '🤍'} ${isFav ? '已收藏' : '收藏'}`;
+  modalFavorite.innerHTML = `${isFav ? '❤️' : '🤍'} ${isFav ? t('favoritedLabel') : t('favorite')}`;
   modalFavorite.classList.toggle('active', isFav);
 }
 
@@ -137,7 +139,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && modal && !modal.hidden) closeProduct();
 });
 
-// 新增：收藏按钮点击事件
+// 收藏按钮点击事件
 if (modalFavorite) {
   modalFavorite.addEventListener('click', () => {
     if (!currentProduct) return;
@@ -148,7 +150,7 @@ if (modalFavorite) {
   });
 }
 
-// 新增：加入购物车按钮点击事件
+// 加入购物车按钮点击事件
 if (modalAddCart) {
   modalAddCart.addEventListener('click', (event) => {
     if (!currentProduct || modalAddCart.disabled) return;
