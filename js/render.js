@@ -47,7 +47,7 @@ const PRODUCT_CATEGORY_TRANSLATIONS = {
 /**
  * 把商品的中文 category 翻译成当前语言，找不到就原样返回。
  */
-function getProductCategoryName(zhCategory) {
+export function getProductCategoryName(zhCategory) {
   if (!zhCategory) return '';
   const lang = getLanguage();
   const entry = PRODUCT_CATEGORY_TRANSLATIONS[zhCategory];
