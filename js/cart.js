@@ -23,7 +23,7 @@ export function loadCart() {
  */
 export function addToCart(product, quantity = 1) {
   if (product.stock <= 0) {
-    showToast('该商品暂时缺货');
+    showToast(t('outOfStockToast'));
     return;
   }
 
@@ -45,7 +45,7 @@ export function addToCart(product, quantity = 1) {
 
   setJson(KEYS.CART, cart);
   setState({ cart });
-  showToast('已加入购物车');
+  showToast(t('addedToCartToast'));
 }
 
 /**
@@ -84,7 +84,7 @@ export function removeFromCart(productId) {
 export function clearCart() {
   setJson(KEYS.CART, []);
   setState({ cart: [] });
-  showToast('购物车已清空');
+  showToast(t('cartClearedToast'));
 }
 
 /**
@@ -113,12 +113,10 @@ export function renderCartList(cart, callbacks = {}) {
   if (!container) return;
 
   if (!cart.length) {
-    // 直接用 t() 取当前语言文案，不依赖后续的 applyTranslations 扫描时机
     container.innerHTML = `<p class="empty-state" data-i18n="emptyCart">${t('emptyCart')}</p>`;
     return;
   }
 
-  // 统一用 ₸ 符号，跟商品卡片（render.js）保持一致，不再用中文"坚戈"
   const currencySymbol = '₸';
 
   container.innerHTML = cart
@@ -165,7 +163,6 @@ export function renderCartSummary(cart) {
   const total = calculateTotal(cart);
   const count = calculateCount(cart);
 
-  // 同样统一用 ₸ 符号，数量单位改用 t('itemsUnit') 按语言切换
   if (totalEl) totalEl.textContent = `${formatPrice(total)} ₸`;
   if (countEl) countEl.textContent = `${count} ${t('itemsUnit')}`;
 
