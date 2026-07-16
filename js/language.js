@@ -51,6 +51,9 @@ const translations = {
     outOfStockToast: 'Бұл тауар уақытша жоқ',
     addedToCartToast: 'Себетке қосылды',
     cartClearedToast: 'Себет тазаланды',
+    stockCountLabel: 'Қоймада: {count} дана',
+    noDescription: 'Сипаттама жоқ.',
+    favoritedLabel: 'Таңдаулыларда',
 
     // ---- Админ панелі (жаңа) ----
     adminLoginTitle: '🔐 Әдминыстратор',
@@ -149,6 +152,9 @@ const translations = {
     outOfStockToast: 'Товара временно нет в наличии',
     addedToCartToast: 'Добавлено в корзину',
     cartClearedToast: 'Корзина очищена',
+    stockCountLabel: 'В наличии: {count} шт.',
+    noDescription: 'Описание отсутствует.',
+    favoritedLabel: 'В избранном',
 
     // ---- Админ-панель (новое) ----
     adminLoginTitle: '🔐 Вход для администратора',
@@ -246,7 +252,10 @@ const translations = {
     remove: 'Remove',
     outOfStockToast: 'This item is temporarily out of stock',
     addedToCartToast: 'Added to cart',
-    cartClearedToast: 'Cart cleared'
+    cartClearedToast: 'Cart cleared',
+    stockCountLabel: 'In stock: {count}',
+    noDescription: 'No description available.',
+    favoritedLabel: 'Favorited'
   }
 };
 
