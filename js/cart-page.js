@@ -5,7 +5,7 @@
 
 import { initTheme } from './theme.js';
 import { initPersistedState, getState } from './state.js';
-import { initLanguage, applyTranslations } from './language.js';
+import { initLanguage, applyTranslations, setLanguage, getLanguage, t } from './language.js';
 import { renderShopHeader, renderFooter } from './render.js';
 import { fetchHomeData } from './api.js';
 import { loadCart, renderCartList, renderCartSummary, updateCartQuantity, removeFromCart, clearCart } from './cart.js';
@@ -16,7 +16,7 @@ async function init() {
   initTheme();
   initPersistedState();
 
-  // 新增：跟首页一样接入多语言 + 店铺数据，让购物车页的店铺名/地址也随语言切换
+  // 接入多语言 + 店铺数据，让购物车页的店铺名/地址也随语言切换
   initLanguage();
   try {
     const homeData = await fetchHomeData();
@@ -59,7 +59,7 @@ async function init() {
     const formData = new FormData(form);
     const currentCart = loadCart();
     if (!currentCart.length) {
-      showToast('购物车为空');
+      showToast(t('emptyCart'));
       return;
     }
     const order = createOrder({
@@ -74,6 +74,17 @@ async function init() {
       form.reset();
     }
   });
+
+  // 新增：绑定语言切换下拉框，切换语言时刷新翻译 + 重新渲染购物车列表
+  const langSelect = document.getElementById('lang-select');
+  if (langSelect) {
+    langSelect.value = getLanguage();
+    langSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+      applyTranslations();
+      refreshCart();
+    });
+  }
 
   // 页头跳转
   document.getElementById('cart-btn')?.addEventListener('click', () => window.location.reload());
