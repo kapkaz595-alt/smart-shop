@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="kk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>购物车 | 阳光便利店 | SmartShop</title>
+    <title id="page-title">购物车 | SmartShop</title>
     <meta name="description" content="购物车 — 查看已选商品、修改数量、提交订单。" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="manifest" href="manifest.json" />
@@ -20,19 +20,27 @@
       <div class="container">
         <div class="header-top">
           <a href="index.html" class="brand">
-            <div class="brand-logo">☀️</div>
+            <div id="shop-logo" class="brand-logo" aria-hidden="true">☀️</div>
             <div class="brand-text">
-              <h1 class="brand-name">阳光便利店</h1>
-              <p class="brand-slogan">购物车</p>
+              <h1 id="shop-name" class="brand-name">E-DUKEN</h1>
+              <p class="brand-slogan" data-i18n="cartPageTitle">🛒 购物车</p>
             </div>
           </a>
           <div class="header-actions">
-            <button id="favorites-btn" class="icon-btn" aria-label="收藏">❤️</button>
-            <button id="cart-btn" class="icon-btn" aria-label="购物车">
+            <button id="favorites-btn" class="icon-btn" aria-label="收藏" data-i18n-label="favorite">❤️</button>
+            <button id="cart-btn" class="icon-btn" aria-label="购物车" data-i18n-label="cart">
               🛒
               <span class="badge" hidden>0</span>
             </button>
-            <button id="orders-btn" class="icon-btn" aria-label="订单">📋</button>
+            <button id="orders-btn" class="icon-btn" aria-label="订单" data-i18n-label="orders">📋</button>
+
+            <div class="top-lang-picker">
+              <select id="lang-select" aria-label="Language Selector">
+                <option value="kk">Қазақша</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -40,49 +48,49 @@
 
     <main class="main-content">
       <section class="page-section container">
-        <h2 class="page-title">🛒 购物车</h2>
+        <h2 class="page-title" data-i18n="cartPageTitle">🛒 购物车</h2>
         <div id="cart-list"></div>
 
         <div class="cart-summary">
           <div>
-            <p class="cart-total">合计：<strong id="cart-total">0 坚戈</strong></p>
-            <p id="cart-count" class="section-count">0 件商品</p>
+            <p class="cart-total"><span data-i18n="totalLabel">合计：</span><strong id="cart-total">0</strong></p>
+            <p id="cart-count" class="section-count"></p>
           </div>
           <div class="cart-actions">
-            <button id="clear-cart-btn" type="button" class="btn btn-secondary">清空购物车</button>
-            <a href="#order-form" class="btn btn-primary">去结算</a>
+            <button id="clear-cart-btn" type="button" class="btn btn-secondary" data-i18n="clearCartBtn">清空购物车</button>
+            <a href="#order-form" class="btn btn-primary" data-i18n="checkout">去结算</a>
           </div>
         </div>
 
         <form id="order-form" class="order-form">
-          <h3 class="modal-subtitle">提交订单</h3>
+          <h3 class="modal-subtitle" data-i18n="submitOrderTitle">提交订单</h3>
           <div class="form-row">
             <div class="form-group">
-              <label for="customerName">顾客姓名</label>
-              <input id="customerName" name="customerName" type="text" required placeholder="请输入姓名" />
+              <label for="customerName" data-i18n="customerNameLabel">顾客姓名</label>
+              <input id="customerName" name="customerName" type="text" required data-i18n-placeholder="customerNamePlaceholder" placeholder="请输入姓名" />
             </div>
             <div class="form-group">
-              <label for="phone">联系电话</label>
-              <input id="phone" name="phone" type="tel" required placeholder="请输入手机号" />
+              <label for="phone" data-i18n="contactPhoneLabel">联系电话</label>
+              <input id="phone" name="phone" type="tel" required data-i18n-placeholder="phonePlaceholder" placeholder="请输入手机号" />
             </div>
           </div>
           <div class="form-group">
-            <label for="deliveryType">取货方式</label>
+            <label for="deliveryType" data-i18n="deliveryTypeLabel">取货方式</label>
             <select id="deliveryType" name="deliveryType">
-              <option value="self">到店自提</option>
-              <option value="delivery">配送到家</option>
+              <option value="self" data-i18n="selfPickup">到店自提</option>
+              <option value="delivery" data-i18n="homeDelivery">配送到家</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="note">备注</label>
-            <textarea id="note" name="note" rows="3" placeholder="例如：不要辣、送到小区门口..."></textarea>
+            <label for="note" data-i18n="noteLabel">备注</label>
+            <textarea id="note" name="note" rows="3" data-i18n-placeholder="notePlaceholder" placeholder="例如：不要辣、送到小区门口..."></textarea>
           </div>
-          <button id="submit-order-btn" type="button" class="btn btn-primary btn-block">提交订单</button>
+          <button id="submit-order-btn" type="button" class="btn btn-primary btn-block" data-i18n="submitOrderTitle">提交订单</button>
         </form>
 
         <div id="kaspi-qr-section" class="order-form" hidden>
-          <h3 class="modal-subtitle">💳 扫码支付</h3>
-          <p style="color:var(--color-ink-soft);font-size:14px;margin-bottom:12px;">
+          <h3 class="modal-subtitle" data-i18n="kaspiTitle">💳 扫码支付</h3>
+          <p style="color:var(--color-ink-soft);font-size:14px;margin-bottom:12px;" data-i18n="kaspiDesc">
             订单已发送到店主 WhatsApp，请使用 Kaspi App 扫码付款，付款后在 WhatsApp 上告知店主。
           </p>
           <img src="https://placehold.co/300x300?text=Kaspi+QR" alt="Kaspi收款二维码" style="width:240px;border-radius:12px;margin:0 auto;display:block;" />
@@ -93,20 +101,20 @@
     <footer class="site-footer">
       <div class="container footer-content">
         <div class="footer-block">
-          <h4>店铺信息</h4>
-          <p>阳光便利店</p>
-          <p>📍 某某市幸福路 88 号</p>
-          <p>☎ 138-0000-0000</p>
+          <h4 data-i18n="shopInfo">店铺信息</h4>
+          <p id="footer-name">E-DUKEN</p>
+          <p id="shop-address-footer">📍 某某市幸福路 88 号</p>
+          <p id="shop-phone-footer">☎ 138-0000-0000</p>
         </div>
         <div class="footer-block">
-          <h4>快速链接</h4>
-          <a href="index.html" class="footer-link">首页</a>
-          <a href="products.html" class="footer-link">全部商品</a>
-          <a href="favorites.html" class="footer-link">我的收藏</a>
-          <a href="orders.html" class="footer-link">我的订单</a>
+          <h4 data-i18n="quickLinks">快速链接</h4>
+          <a href="index.html" class="footer-link" data-i18n="home">首页</a>
+          <a href="products.html" class="footer-link" data-i18n="products">全部商品</a>
+          <a href="favorites.html" class="footer-link" data-i18n="favorites">我的收藏</a>
+          <a href="orders.html" class="footer-link" data-i18n="orders">我的订单</a>
         </div>
       </div>
-      <p class="footer-copyright">&copy; 2026 阳光便利店 SmartShop. 保留所有权利。</p>
+      <p class="footer-copyright">&copy; 2026 <span id="footer-copyright-name">E-DUKEN</span> SmartShop. <span data-i18n="allRightsReserved">保留所有权利。</span></p>
     </footer>
 
     <script type="module" src="js/cart-page.js"></script>
