@@ -5,6 +5,9 @@
 
 import { initTheme } from './theme.js';
 import { initPersistedState, getState } from './state.js';
+import { initLanguage, applyTranslations } from './language.js';
+import { renderShopHeader, renderFooter } from './render.js';
+import { fetchHomeData } from './api.js';
 import { loadCart, renderCartList, renderCartSummary, updateCartQuantity, removeFromCart, clearCart } from './cart.js';
 import { createOrder, renderOrders, loadOrders } from './orders.js';
 import { showToast } from './utils.js';
@@ -12,6 +15,18 @@ import { showToast } from './utils.js';
 async function init() {
   initTheme();
   initPersistedState();
+
+  // 新增：跟首页一样接入多语言 + 店铺数据，让购物车页的店铺名/地址也随语言切换
+  initLanguage();
+  try {
+    const homeData = await fetchHomeData();
+    const shop = (homeData && homeData.shop) || {};
+    renderShopHeader(shop);
+    renderFooter(shop);
+  } catch (err) {
+    console.error('[SmartShop] cart 页面加载店铺信息失败：', err);
+  }
+  applyTranslations();
 
   const cart = loadCart();
   renderCartList(cart, {
@@ -77,4 +92,3 @@ function refreshCart() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-
