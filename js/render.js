@@ -4,12 +4,20 @@
 // ==========================================================================
 
 import { resolveImagePath } from './utils.js';
-import { t } from './language.js';
+import { t, getLanguage } from './language.js';
 
 export const ALL_CATEGORIES_LABEL = '全部商品';
 
-// 店铺名字固定显示，不随后台数据或语言切换变化
-const FIXED_SHOP_NAME = 'E-DUKEN';
+/**
+ * 读取多语言字段（name/description/address 现在都是 {kk, ru, en} 对象）。
+ * 兼容旧数据：如果传进来的还是纯字符串，直接原样返回。
+ */
+function localized(field) {
+  if (!field) return '';
+  if (typeof field === 'string') return field;
+  const lang = getLanguage();
+  return field[lang] || field.kk || field.ru || field.en || '';
+}
 
 /**
  * 渲染页头店铺信息。
@@ -27,21 +35,23 @@ export function renderShopHeader(shop) {
   const telegram = document.getElementById('shop-telegram');
   const map = document.getElementById('shop-map');
 
+  const shopName = localized(shop.name);
+
   if (logo) logo.textContent = shop.logo || '☀️';
-  // 店铺名字固定为 E-DUKEN，不使用后台数据的 shop.name
-  if (name) name.textContent = FIXED_SHOP_NAME;
-  if (slogan) slogan.textContent = shop.description || '';
+  // 改回读取后台数据，并按当前语言取值
+  if (name) name.textContent = shopName;
+  if (slogan) slogan.textContent = localized(shop.description);
   if (phone) {
-    phone.textContent = `☎ ${shop.phone}`;
-    phone.href = `tel:${shop.phone}`;
+    phone.textContent = `☎ ${shop.phone || ''}`;
+    phone.href = `tel:${shop.phone || ''}`;
   }
-  if (hours) hours.textContent = `🕒 ${shop.hours}`;
-  if (address) address.textContent = `📍 ${shop.address}`;
-  if (whatsapp) whatsapp.href = `https://wa.me/${shop.whatsapp}`;
-  if (telegram) telegram.href = `https://t.me/${shop.telegram}`;
+  if (hours) hours.textContent = `🕒 ${shop.hours || ''}`;
+  if (address) address.textContent = `📍 ${localized(shop.address)}`;
+  if (whatsapp) whatsapp.href = `https://wa.me/${shop.whatsapp || ''}`;
+  if (telegram) telegram.href = `https://t.me/${shop.telegram || ''}`;
   if (map) map.href = shop.googleMap || '#';
 
-  document.title = `${FIXED_SHOP_NAME} | SmartShop`;
+  document.title = `${shopName} | SmartShop`;
 }
 
 /**
@@ -343,9 +353,20 @@ export function renderList(items, containerId, renderItem) {
  */
 export function renderFooter(shop) {
   if (!shop) return;
+
   const footerName = document.getElementById('footer-name');
-  // 页脚店铺名字同样固定为 E-DUKEN
-  if (footerName) footerName.textContent = FIXED_SHOP_NAME;
   const copyrightName = document.getElementById('footer-copyright-name');
-  if (copyrightName) copyrightName.textContent = FIXED_SHOP_NAME;
+  // 新增：电话 / 地址 / 营业时间三个页脚元素（对应 index.html 里真实的 id）
+  const footerPhone = document.getElementById('shop-phone-footer');
+  const footerAddress = document.getElementById('shop-address-footer');
+  const footerHours = document.getElementById('shop-hours-footer');
+
+  const shopName = localized(shop.name);
+
+  if (footerName) footerName.textContent = shopName;
+  if (copyrightName) copyrightName.textContent = shopName;
+
+  if (footerPhone) footerPhone.textContent = `☎ ${shop.phone || ''}`;
+  if (footerAddress) footerAddress.textContent = `📍 ${localized(shop.address)}`;
+  if (footerHours) footerHours.textContent = `🕒 ${shop.hours || ''}`;
 }
