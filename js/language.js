@@ -48,6 +48,9 @@ const translations = {
     kaspiDesc: 'Тапсырыс дүкен иесінің WhatsApp-ына жіберілді. Kaspi қолданбасы арқылы QR кодты сканерлеп төлеңіз, төлегеннен кейін WhatsApp-та хабарлаңыз.',
     itemsUnit: 'дана',
     remove: 'Жою',
+    outOfStockToast: 'Бұл тауар уақытша жоқ',
+    addedToCartToast: 'Себетке қосылды',
+    cartClearedToast: 'Себет тазаланды',
 
     // ---- Админ панелі (жаңа) ----
     adminLoginTitle: '🔐 Әдминыстратор',
@@ -143,6 +146,9 @@ const translations = {
     kaspiDesc: 'Заказ отправлен владельцу магазина в WhatsApp. Оплатите через приложение Kaspi, отсканировав QR-код, и сообщите об оплате в WhatsApp.',
     itemsUnit: 'шт.',
     remove: 'Удалить',
+    outOfStockToast: 'Товара временно нет в наличии',
+    addedToCartToast: 'Добавлено в корзину',
+    cartClearedToast: 'Корзина очищена',
 
     // ---- Админ-панель (новое) ----
     adminLoginTitle: '🔐 Вход для администратора',
@@ -237,7 +243,10 @@ const translations = {
     kaspiTitle: '💳 Scan to Pay',
     kaspiDesc: 'Your order has been sent to the shop owner via WhatsApp. Please scan the QR code in the Kaspi app to pay, then confirm payment via WhatsApp.',
     itemsUnit: 'items',
-    remove: 'Remove'
+    remove: 'Remove',
+    outOfStockToast: 'This item is temporarily out of stock',
+    addedToCartToast: 'Added to cart',
+    cartClearedToast: 'Cart cleared'
   }
 };
 
