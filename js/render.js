@@ -28,6 +28,34 @@ function getCategoryName(cat) {
 }
 
 /**
+ * 商品数据里的 category 字段是中文（如 "水果"），这里做一张对照表，
+ * 用于把商品卡片上显示的分类文字也按当前语言翻译。
+ * 和 categories.json 里的翻译保持一致；以后新增分类记得也在这里加一行。
+ */
+const PRODUCT_CATEGORY_TRANSLATIONS = {
+  '饮料': { kk: 'Сусындар', ru: 'Напитки', en: 'Drinks' },
+  '零食': { kk: 'Тәттілер', ru: 'Снеки', en: 'Snacks' },
+  '牛奶': { kk: 'Сүт', ru: 'Молоко', en: 'Milk' },
+  '面包': { kk: 'Нан', ru: 'Хлеб', en: 'Bread' },
+  '水果': { kk: 'Жеміс', ru: 'Фрукты', en: 'Fruit' },
+  '蔬菜': { kk: 'Көкөніс', ru: 'Овощи', en: 'Vegetables' },
+  '方便面': { kk: 'Жылдам лапша', ru: 'Лапша быстрого приготовления', en: 'Instant Noodles' },
+  '冷冻食品': { kk: 'Мұздатылған тағамдар', ru: 'Замороженные продукты', en: 'Frozen Food' },
+  '日用品': { kk: 'Тұрмыстық тауарлар', ru: 'Товары для дома', en: 'Household Goods' },
+};
+
+/**
+ * 把商品的中文 category 翻译成当前语言，找不到就原样返回。
+ */
+function getProductCategoryName(zhCategory) {
+  if (!zhCategory) return '';
+  const lang = getLanguage();
+  const entry = PRODUCT_CATEGORY_TRANSLATIONS[zhCategory];
+  if (!entry) return zhCategory;
+  return entry[lang] || zhCategory;
+}
+
+/**
  * 渲染页头店铺信息。
  */
 export function renderShopHeader(shop) {
@@ -302,6 +330,7 @@ function createProductCardHtml(product, isFavorite) {
 
   const stockKey = inStock ? 'inStock' : 'outOfStock';
   const actionKey = inStock ? 'viewDetails' : 'outOfStock';
+  const categoryDisplay = getProductCategoryName(product.category);
 
   return `
     <article class="product-card" data-id="${product.id}" tabindex="0" role="button" aria-label="${t('viewDetails')} ${product.name}">
@@ -315,7 +344,7 @@ function createProductCardHtml(product, isFavorite) {
       </div>
       <div class="card-body">
         <div class="card-meta">
-          <span class="card-category">${product.category || ''}</span>
+          <span class="card-category">${categoryDisplay}</span>
           <span class="card-brand">${product.brand || ''}</span>
         </div>
         <h3 class="card-name">${product.name}</h3>
