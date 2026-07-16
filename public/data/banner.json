@@ -1,24 +1,24 @@
 [
   {
     "id": 1,
-    "title": "今日特惠",
-    "subtitle": "精选商品限时折扣",
+    "title": "Бүгінгі жеңілдіктер",
+    "subtitle": "Таңдаулы тауарларға уақытша жеңілдіктер",
     "image": "images/banner1.jpg",
     "link": "#promotions",
     "color": "#ff7a1a"
   },
   {
     "id": 2,
-    "title": "新鲜水果",
-    "subtitle": "每日早晨新鲜到货",
+    "title": "Жаңа жемістер",
+    "subtitle": "Күн сайын жаңа өнімдер",
     "image": "images/banner2.jpg",
     "link": "#category-fruit",
     "color": "#1f9d55"
   },
   {
     "id": 3,
-    "title": "新品上市",
-    "subtitle": "发现更多美味零食",
+    "title": "Жаңа өнімдер",
+    "subtitle": "Дәмі тіл үйретін снектер ",
     "image": "images/banner3.jpg",
     "link": "#new-arrivals",
     "color": "#2563eb"
