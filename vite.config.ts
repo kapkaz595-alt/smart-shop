@@ -24,7 +24,7 @@ if (!basePath) {
   );
 }
 
-const rootDir = path.resolve(import.meta.dirname);
+const rootDir = path.resolve(process.cwd());
 
 /**
  * 递归扫描项目根目录下所有 .html 文件，自动生成多页面构建入口。
