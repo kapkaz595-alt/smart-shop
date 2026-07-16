@@ -20,6 +20,14 @@ function localized(field) {
 }
 
 /**
+ * 根据当前语言取分类名称（categories.json 现在用 name_kk/name_ru/name_en 三个字段）。
+ */
+function getCategoryName(cat) {
+  const lang = getLanguage();
+  return cat[`name_${lang}`] || cat.name_kk || cat.name_ru || cat.name_en || cat.name || '';
+}
+
+/**
  * 渲染页头店铺信息。
  */
 export function renderShopHeader(shop) {
@@ -160,23 +168,25 @@ export function renderAnnouncements(announcements) {
 }
 
 /**
- * 渲染分类导航按钮（修复版）
+ * 渲染分类导航按钮
  * 每次调用都会用 innerHTML 整体重建列表内容，
  * 因此直接绑定一次新的事件监听即可，无需（也不能）在绑定前尝试移除旧引用。
+ *
+ * 注意：data-category 现在用 cat.id（不再变化的稳定值），
+ * 不再用 cat.name（因为分类名称会随语言切换而变化，用它做筛选值会导致切换语言后筛选失效）。
  */
 export function renderCategories(categories, activeCategory, onSelect) {
   const list = document.getElementById('category-list');
   if (!list) return;
 
   const safeCategories = Array.isArray(categories) ? categories : [];
-  const items = [{ id: 'all', name: t('products'), icon: '🏪' }, ...safeCategories];
+  const items = [{ id: 'all', icon: '🏪' }, ...safeCategories];
 
   list.innerHTML = items
     .map((cat) => {
-      const isActive =
-        cat.name === activeCategory ||
-        (cat.id === 'all' && activeCategory === ALL_CATEGORIES_LABEL);
-      const categoryValue = cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.name;
+      const displayName = cat.id === 'all' ? t('products') : getCategoryName(cat);
+      const categoryValue = cat.id === 'all' ? ALL_CATEGORIES_LABEL : cat.id;
+      const isActive = categoryValue === activeCategory;
 
       return `
         <li>
@@ -186,7 +196,7 @@ export function renderCategories(categories, activeCategory, onSelect) {
             data-category="${categoryValue}"
           >
             <span class="category-icon">${cat.icon || ''}</span>
-            ${cat.name}
+            ${displayName}
           </button>
         </li>
       `;
