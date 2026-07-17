@@ -224,17 +224,17 @@ export function renderOrders(orders) {
   container.innerHTML = orders
     .map((order) => {
       const statusMap = {
-        pending: 'Расталуды күтуде',
-        confirmed: 'Расталды',
-        completed: 'Аяқталды',
-        cancelled: 'Бас тартылды',
-      };
-      const statusClass = {
-        pending: 'pending',
-        confirmed: 'confirmed',
-        completed: 'completed',
-        cancelled: 'cancelled',
-      }[order.status] || 'pending';
+  pending: 'Расталуды күтуде',
+  confirmed: 'Расталды',
+  cancelled: 'Бас тартылды',
+  expired: 'Мерзімі өтті', // 新增：已过期
+};
+const statusClass = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  cancelled: 'cancelled',
+  expired: 'cancelled', // 新增：样式复用取消订单的红色
+}[order.status] || 'pending';
 
       const date = new Date(order.createdAt).toLocaleString('zh-CN');
       const items = order.items
