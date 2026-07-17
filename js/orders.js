@@ -135,10 +135,10 @@ export function renderOrders(orders) {
   container.innerHTML = orders
     .map((order) => {
       const statusMap = {
-        pending: '待确认',
-        confirmed: '已确认',
-        completed: '已完成',
-        cancelled: '已取消',
+        pending: 'Расталуды күтуде',
+        confirmed: 'Расталды',
+        completed: 'Аяқталды',
+        cancelled: 'Бас тартылды',
       };
       const statusClass = {
         pending: 'pending',
@@ -155,16 +155,16 @@ export function renderOrders(orders) {
       return `
         <div class="list-card order-card">
           <div class="list-card-body">
-            <div class="list-card-meta" style="font-weight:700;">订单编号：${order.id}</div>
-            <div class="list-card-meta">下单时间：${date}</div>
+            <div class="list-card-meta" style="font-weight:700;">Тапсырыс нөмірі：${order.id}</div>
+            <div class="list-card-meta">Тапсырыс уақыты：${date}</div>
             <div class="list-card-meta">Клент：${order.customerName || '-'} / ${order.phone || '-'}</div>
             ${items}
-            <p class="list-card-price">合计：${order.total} ТГ</p>
-            <p class="list-card-meta">配送方式：${order.deliveryType === 'delivery' ? '配送' : '自提'}</p>
+            <p class="list-card-price">Жалпы сома：${order.total} ТГ</p>
+            <p class="list-card-meta">Жеткізу тәсілі：${order.deliveryType === 'delivery' ? 'Жеткізу ' : 'Алып кету '}</p>
           </div>
           <div class="list-card-actions" style="flex-direction:column;gap:8px;">
             <span class="status-badge ${statusClass}">${statusMap[order.status]}</span>
-            ${order.status === 'pending' ? `<button type="button" class="btn btn-secondary" data-action="cancel" data-id="${order.id}">取消</button>` : ''}
+            ${order.status === 'pending' ? `<button type="button" class="btn btn-secondary" data-action="cancel" data-id="${order.id}">Бас тарту</button>` : ''}
           </div>
         </div>
       `;
