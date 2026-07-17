@@ -149,7 +149,17 @@ export function sendOrderToWhatsApp(order) {
  * 现在是异步函数：调用方必须 await。
  */
 export async function loadOrders() {
-  const localIds = getJson(KEYS.ORDERS, []);
+  const rawIds = getJson(KEYS.ORDERS, []);
+
+  // 兼容旧数据：旧版本存的是完整订单对象数组，这里只取出真正的 UUID 字符串，
+  // 过滤掉不是字符串（比如残留的旧订单对象）的脏数据，避免传给 Supabase 报错
+  const localIds = rawIds.filter((item) => typeof item === 'string');
+
+  // 如果过滤后数量变了，说明本地存在脏数据，顺手把它清理干净
+  if (localIds.length !== rawIds.length) {
+    setJson(KEYS.ORDERS, localIds);
+  }
+
   if (!localIds.length) return [];
 
   const { data, error } = await supabase
