@@ -12,11 +12,10 @@ async function init() {
   initTheme();
   initPersistedState();
   renderCartSummary(loadCart());
-  renderOrders(loadOrders());
+  renderOrders(await loadOrders());
 
   document.getElementById('cart-btn')?.addEventListener('click', () => window.location.href = 'cart.html');
   document.getElementById('favorites-btn')?.addEventListener('click', () => window.location.href = 'favorites.html');
 }
 
 document.addEventListener('DOMContentLoaded', init);
-
