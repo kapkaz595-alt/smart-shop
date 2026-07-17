@@ -277,3 +277,141 @@ export async function uploadImage(file) {
 // 废弃原先的本地缓存加载
 export function loadAdminProducts(initialProducts = []) { return []; }
 export function initAdminCache(products) { return; }
+
+import { updateOrderStatus } from './orders.js';
+
+/**
+ * 扣减商品库存（按购买数量做减法核销库存，订单确认收款后调用）。
+ * @param {number} productId
+ * @param {number} quantity
+ */
+async function decreaseStock(productId, quantity) {
+  const { data: current, error: fetchError } = await supabase
+    .from('products')
+    .select('stock')
+    .eq('id', productId)
+    .single();
+
+  if (fetchError) {
+    console.error(`读取商品 ${productId} 库存失败:`, fetchError);
+    return;
+  }
+
+  const newStock = Math.max(0, (current?.stock || 0) - Number(quantity));
+
+  const { error } = await supabase
+    .from('products')
+    .update({ stock: newStock })
+    .eq('id', productId);
+
+  if (error) {
+    console.error(`商品 ${productId} 库存扣减失败:`, error);
+  }
+}
+
+/**
+ * 确认订单收款：把订单状态改为 confirmed，并对订单里每个商品做库存扣减。
+ * @param {string} orderId
+ */
+async function confirmOrderAndDeductStock(orderId) {
+  const { data: order, error: fetchError } = await supabase
+    .from('orders')
+    .select('items')
+    .eq('id', orderId)
+    .single();
+
+  if (fetchError) {
+    showToast(`获取订单详情失败: ${fetchError.message}`);
+    return;
+  }
+
+  const items = order?.items || [];
+  for (const item of items) {
+    await decreaseStock(item.id, item.quantity);
+  }
+
+  const success = await updateOrderStatus(orderId, 'confirmed');
+  if (success) {
+    showToast('订单已确认，库存已扣减');
+    renderAdminOrders();
+    renderAdminProducts(); // 库存变了，商品列表也刷新一下显示最新库存
+  }
+}
+
+/**
+ * 渲染后台订单列表（从 Supabase 读取所有订单，不受设备/localStorage 限制）。
+ */
+export async function renderAdminOrders() {
+  const tbody = document.getElementById('admin-order-list');
+  if (!tbody) return;
+
+  try {
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const statusLabel = {
+      pending: 'Расталуды күтуде',
+      confirmed: 'Расталды',
+      cancelled: 'Бас тартылды',
+    };
+    const statusClass = {
+      pending: 'pending',
+      confirmed: 'completed',
+      cancelled: 'cancelled',
+    };
+
+    tbody.innerHTML = (orders || [])
+      .map((o) => {
+        const itemsText = (o.items || [])
+          .map((item) => `${item.name} × ${item.quantity}`)
+          .join('、');
+        const date = o.created_at ? new Date(o.created_at).toLocaleString('zh-CN') : '';
+        const isPending = o.status === 'pending';
+
+        return `
+          <tr data-id="${o.id}">
+            <td>${o.id.slice(0, 8)}...</td>
+            <td>${date}</td>
+            <td>${o.customer_name || '-'}<br/>${o.customer_phone || '-'}</td>
+            <td>${itemsText}</td>
+            <td>${o.final_amount} ₸</td>
+            <td><span class="status-badge ${statusClass[o.status] || 'pending'}">${statusLabel[o.status] || o.status}</span></td>
+            <td>
+              ${isPending
+                ? `<button type="button" class="btn btn-primary" data-action="confirm" data-id="${o.id}">Растау</button>
+                   <button type="button" class="btn btn-danger" data-action="cancel-order" data-id="${o.id}">Бас тарту</button>`
+                : '-'}
+            </td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    tbody.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+
+        if (action === 'confirm') {
+          if (!confirm('确认已收到付款并核销库存？')) return;
+          await confirmOrderAndDeductStock(id);
+        }
+
+        if (action === 'cancel-order') {
+          if (!confirm('确认取消该订单？')) return;
+          const success = await updateOrderStatus(id, 'cancelled');
+          if (success) {
+            showToast('订单已取消');
+            renderAdminOrders();
+          }
+        }
+      });
+    });
+  } catch (error) {
+    showToast(`加载订单列表失败: ${error.message}`);
+  }
+}
