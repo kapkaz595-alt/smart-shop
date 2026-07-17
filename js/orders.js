@@ -157,9 +157,9 @@ export function renderOrders(orders) {
           <div class="list-card-body">
             <div class="list-card-meta" style="font-weight:700;">订单编号：${order.id}</div>
             <div class="list-card-meta">下单时间：${date}</div>
-            <div class="list-card-meta">顾客：${order.customerName || '-'} / ${order.phone || '-'}</div>
+            <div class="list-card-meta">Клент：${order.customerName || '-'} / ${order.phone || '-'}</div>
             ${items}
-            <p class="list-card-price">合计：${order.total} 坚戈</p>
+            <p class="list-card-price">合计：${order.total} ТГ</p>
             <p class="list-card-meta">配送方式：${order.deliveryType === 'delivery' ? '配送' : '自提'}</p>
           </div>
           <div class="list-card-actions" style="flex-direction:column;gap:8px;">
