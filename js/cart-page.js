@@ -80,7 +80,18 @@ async function init() {
       if (order) {
         clearCart();
         refreshCart();
-        form.reset();
+
+        // 提交成功后：隐藏表单，展示收款二维码区块，并显示订单号/金额供顾客核对
+        form.hidden = true;
+        const qrSection = document.getElementById('kaspi-qr-section');
+        if (qrSection) {
+          qrSection.hidden = false;
+          const amountEl = qrSection.querySelector('.kaspi-amount');
+          if (amountEl) amountEl.textContent = `${order.total} ₸`;
+          const orderIdEl = qrSection.querySelector('.kaspi-order-id');
+          if (orderIdEl) orderIdEl.textContent = order.id;
+          qrSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     } finally {
       submitBtn.disabled = false;
