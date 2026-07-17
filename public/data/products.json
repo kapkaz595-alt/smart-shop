@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Coca-Cola",
-    "aliases": ["可乐", "可口可乐", "kele"],
+    "aliases": ["可乐", "可口可乐", "kele", "кока-кола", "кокакола"],
     "price": 650,
     "originalPrice": 700,
     "discount": 0.07,
@@ -31,7 +31,7 @@
   {
     "id": 2,
     "name": "矿泉水",
-    "aliases": ["water", "瓶装水", "shui"],
+    "aliases": ["water", "瓶装水", "shui", "минералды су", "минеральная вода"],
     "price": 200,
     "originalPrice": 200,
     "discount": 0,
@@ -60,7 +60,7 @@
   {
     "id": 3,
     "name": "橙汁",
-    "aliases": ["orange", "juice", "橙子汁", "chengzi"],
+    "aliases": ["orange", "juice", "橙子汁", "chengzi", "апельсин шырыны", "апельсиновый сок"],
     "price": 950,
     "originalPrice": 1100,
     "discount": 0.14,
@@ -89,7 +89,7 @@
   {
     "id": 4,
     "name": "绿茶",
-    "aliases": ["green tea", "lvcha", "茶饮料"],
+    "aliases": ["green tea", "lvcha", "茶饮料", "жасыл шай", "зелёный чай"],
     "price": 500,
     "originalPrice": 550,
     "discount": 0.09,
@@ -118,7 +118,7 @@
   {
     "id": 5,
     "name": "薯片",
-    "aliases": ["chips", "potato chips", "shu pian"],
+    "aliases": ["chips", "potato chips", "shu pian", "чипсы"],
     "price": 900,
     "originalPrice": 900,
     "discount": 0,
@@ -147,7 +147,7 @@
   {
     "id": 6,
     "name": "奥利奥饼干",
-    "aliases": ["oreo", "aoliao", "夹心饼干"],
+    "aliases": ["oreo", "aoliao", "夹心饼干", "орео печенье", "печенье орео"],
     "price": 750,
     "originalPrice": 800,
     "discount": 0.06,
@@ -176,7 +176,7 @@
   {
     "id": 7,
     "name": "巧克力",
-    "aliases": ["chocolate", "qiaokeli", "巧克力糖"],
+    "aliases": ["chocolate", "qiaokeli", "巧克力糖", "шоколад"],
     "price": 1200,
     "originalPrice": 1200,
     "discount": 0,
@@ -205,7 +205,7 @@
   {
     "id": 8,
     "name": "瓜子",
-    "aliases": ["sunflower seeds", "guazi", "葵花籽"],
+    "aliases": ["sunflower seeds", "guazi", "葵花籽", "күнбағыс тұқымы", "семечки"],
     "price": 650,
     "originalPrice": 650,
     "discount": 0,
@@ -234,7 +234,7 @@
   {
     "id": 9,
     "name": "鲜牛奶",
-    "aliases": ["milk", "niunai", "纯牛奶"],
+    "aliases": ["milk", "niunai", "纯牛奶", "сүт", "молоко"],
     "price": 850,
     "originalPrice": 850,
     "discount": 0,
@@ -263,7 +263,7 @@
   {
     "id": 10,
     "name": "酸奶",
-    "aliases": ["yogurt", "suannai", "风味酸奶"],
+    "aliases": ["yogurt", "suannai", "风味酸奶", "йогурт", "қатық"],
     "price": 500,
     "originalPrice": 500,
     "discount": 0,
@@ -292,7 +292,7 @@
   {
     "id": 11,
     "name": "白面包",
-    "aliases": ["bread", "bai mianbao", "切片面包"],
+    "aliases": ["bread", "bai mianbao", "切片面包", "нан", "хлеб"],
     "price": 600,
     "originalPrice": 600,
     "discount": 0,
@@ -321,7 +321,7 @@
   {
     "id": 12,
     "name": "牛角包",
-    "aliases": ["croissant", "niujiao bao", "可颂"],
+    "aliases": ["croissant", "niujiao bao", "可颂", "круассан"],
     "price": 450,
     "originalPrice": 450,
     "discount": 0,
@@ -350,7 +350,7 @@
   {
     "id": 13,
     "name": "苹果",
-    "aliases": ["apple", "pingguo", "红苹果"],
+    "aliases": ["apple", "pingguo", "红苹果", "алма", "яблоко"],
     "price": 1200,
     "originalPrice": 1500,
     "discount": 0.20,
@@ -379,7 +379,7 @@
   {
     "id": 14,
     "name": "香蕉",
-    "aliases": ["banana", "xiangjiao", "水果"],
+    "aliases": ["banana", "xiangjiao", "水果", "банан"],
     "price": 900,
     "originalPrice": 900,
     "discount": 0,
@@ -408,7 +408,7 @@
   {
     "id": 15,
     "name": "西红柿",
-    "aliases": ["tomato", "xihongshi", "番茄"],
+    "aliases": ["tomato", "xihongshi", "番茄", "қызанақ", "помидор"],
     "price": 800,
     "originalPrice": 800,
     "discount": 0,
@@ -437,7 +437,7 @@
   {
     "id": 16,
     "name": "黄瓜",
-    "aliases": ["cucumber", "huanggua", "青瓜"],
+    "aliases": ["cucumber", "huanggua", "青瓜", "қияр", "огурец"],
     "price": 600,
     "originalPrice": 600,
     "discount": 0,
@@ -466,7 +466,7 @@
   {
     "id": 17,
     "name": "红烧牛肉面",
-    "aliases": ["beef noodles", "hongshao niuroumian", "泡面"],
+    "aliases": ["beef noodles", "hongshao niuroumian", "泡面", "сиыр етті лапша", "лапша с говядиной"],
     "price": 550,
     "originalPrice": 550,
     "discount": 0,
@@ -495,7 +495,7 @@
   {
     "id": 18,
     "name": "老坛酸菜面",
-    "aliases": ["sauerkraut noodles", "laotan suancaimian", "酸菜面"],
+    "aliases": ["sauerkraut noodles", "laotan suancaimian", "酸菜面", "қышқыл қырыққабат лапшасы", "лапша с кислой капустой"],
     "price": 520,
     "originalPrice": 520,
     "discount": 0,
@@ -524,7 +524,7 @@
   {
     "id": 19,
     "name": "水饺",
-    "aliases": ["dumplings", "shuijiao", "饺子"],
+    "aliases": ["dumplings", "shuijiao", "饺子", "пельмень", "пельмени"],
     "price": 1500,
     "originalPrice": 1800,
     "discount": 0.17,
@@ -553,7 +553,7 @@
   {
     "id": 20,
     "name": "汤圆",
-    "aliases": ["tangyuan", "sweet dumplings", "元宵"],
+    "aliases": ["tangyuan", "sweet dumplings", "元宵", "тәтті бөлкешелер", "танъюань"],
     "price": 1300,
     "originalPrice": 1300,
     "discount": 0,
@@ -582,7 +582,7 @@
   {
     "id": 21,
     "name": "牙膏",
-    "aliases": ["toothpaste", "yagao", "美白牙膏"],
+    "aliases": ["toothpaste", "yagao", "美白牙膏", "тіс пастасы", "зубная паста"],
     "price": 1200,
     "originalPrice": 1200,
     "discount": 0,
@@ -611,7 +611,7 @@
   {
     "id": 22,
     "name": "抽纸",
-    "aliases": ["tissue", "chouzhi", "纸巾"],
+    "aliases": ["tissue", "chouzhi", "纸巾", "майлықша", "салфетки"],
     "price": 1500,
     "originalPrice": 1500,
     "discount": 0,
@@ -640,7 +640,7 @@
   {
     "id": 23,
     "name": "洗发水",
-    "aliases": ["shampoo", "xifashui", "去屑洗发水"],
+    "aliases": ["shampoo", "xifashui", "去屑洗发水", "шампунь"],
     "price": 2500,
     "originalPrice": 2800,
     "discount": 0.11,
