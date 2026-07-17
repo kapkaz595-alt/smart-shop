@@ -131,102 +131,6 @@ export async function addProduct(productData) {
 }
 
 /**
- * 更新商品信息（支持部分字段更新，比如只改库存或只改价格）。
- * @param {number} id
- * @param {Object} changes - 前端字段名（驼峰），只传需要改的字段即可
- */
-export async function updateProduct(id, changes) {
-  const supabaseRow = {};
-
-  if (changes.name !== undefined) supabaseRow.name = changes.name;
-  if (changes.price !== undefined) supabaseRow.price = Number(changes.price);
-  if (changes.originalPrice !== undefined) supabaseRow.original_price = Number(changes.originalPrice);
-  if (changes.discount !== undefined) supabaseRow.discount = changes.discount;
-  if (changes.category !== undefined) supabaseRow.category = changes.category;
-  if (changes.brand !== undefined) supabaseRow.brand = changes.brand;
-  if (changes.specs !== undefined) supabaseRow.specs = changes.specs;
-  if (changes.barcode !== undefined) supabaseRow.barcode = changes.barcode;
-  if (changes.stock !== undefined) supabaseRow.stock = Number(changes.stock);
-  if (changes.image !== undefined) supabaseRow.image = changes.image;
-  if (changes.images !== undefined) supabaseRow.images = changes.images;
-  if (changes.description !== undefined) supabaseRow.description = changes.description;
-  if (changes.features !== undefined) supabaseRow.features = changes.features;
-  if (changes.nutrition !== undefined) supabaseRow.nutrition = changes.nutrition;
-  if (changes.productionDate !== undefined) supabaseRow.production_date = changes.productionDate;
-  if (changes.shelfLife !== undefined) supabaseRow.shelf_life = changes.shelfLife;
-  if (changes.manufacturer !== undefined) supabaseRow.manufacturer = changes.manufacturer;
-  if (changes.tags !== undefined) supabaseRow.tags = changes.tags;
-  if (changes.isNew !== undefined) supabaseRow.is_new = Boolean(changes.isNew);
-  if (changes.isHot !== undefined) supabaseRow.is_hot = Boolean(changes.isHot);
-  if (changes.isPromotion !== undefined) supabaseRow.is_promotion = Boolean(changes.isPromotion);
-  if (changes.promotionType !== undefined) supabaseRow.promotion_type = changes.promotionType;
-  if (changes.aliases !== undefined) supabaseRow.aliases = changes.aliases;
-
-  const { data, error } = await supabase
-    .from('products')
-    .update(supabaseRow)
-    .eq('id', id)
-    .select();
-
-  if (error) {
-    console.error('Supabase 更新失败详情:', error);
-    throw new Error(`商品更新失败: ${error.message}`);
-  }
-
-  return data;
-}
-
-/**
- * 扣减商品库存（订单确认收款后调用，用减法方式核销库存）。
- * @param {number} id
- * @param {number} quantity - 要扣减的数量
- */
-export async function decreaseStock(id, quantity) {
-  // 先读取当前库存，避免直接覆盖导致数据不一致
-  const { data: current, error: fetchError } = await supabase
-    .from('products')
-    .select('stock')
-    .eq('id', id)
-    .single();
-
-  if (fetchError) {
-    throw new Error(`读取库存失败: ${fetchError.message}`);
-  }
-
-  const newStock = Math.max(0, (current?.stock || 0) - Number(quantity));
-
-  const { data, error } = await supabase
-    .from('products')
-    .update({ stock: newStock })
-    .eq('id', id)
-    .select();
-
-  if (error) {
-    throw new Error(`库存扣减失败: ${error.message}`);
-  }
-
-  return data;
-}
-
-/**
- * 删除商品。
- * @param {number} id
- */
-export async function deleteProduct(id) {
-  const { error } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Supabase 删除失败详情:', error);
-    throw new Error(`商品删除失败: ${error.message}`);
-  }
-
-  return true;
-}
-
-/**
  * 读取分类数据（本地 JSON，位于 public/data/）。
  */
 export async function fetchCategories() {
@@ -294,6 +198,7 @@ export async function fetchHomeData() {
   };
 
   if (errors.length) {
+    // 附加一个标记，方便 main.js 判断是否要展示"部分数据加载失败"的提示
     homeData._partialErrors = errors;
   }
 
