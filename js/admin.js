@@ -354,15 +354,17 @@ export async function renderAdminOrders() {
     if (error) throw error;
 
     const statusLabel = {
-      pending: 'Расталуды күтуде',
-      confirmed: 'Расталды',
-      cancelled: 'Бас тартылды',
-    };
-    const statusClass = {
-      pending: 'pending',
-      confirmed: 'completed',
-      cancelled: 'cancelled',
-    };
+  pending: 'Расталуды күтуде',
+  confirmed: 'Расталды',
+  cancelled: 'Бас тартылды',
+  expired: 'Мерзімі өтті', // 新增
+};
+const statusClass = {
+  pending: 'pending',
+  confirmed: 'completed',
+  cancelled: 'cancelled',
+  expired: 'cancelled', // 新增
+};
 
     tbody.innerHTML = (orders || [])
       .map((o) => {
