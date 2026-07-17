@@ -35,7 +35,6 @@
             </div>
           </a>
           <div class="header-actions">
-            <!-- 新增：后台语言切换器，只提供哈语/俄语 -->
             <div class="admin-lang-picker">
               <select id="admin-lang-select" aria-label="Language Selector">
                 <option value="kk">Қазақша</option>
@@ -52,7 +51,6 @@
       <section class="page-section container">
         <h2 class="page-title" data-i18n="productManagement">📦 Тауарларды басқару</h2>
         <div class="admin-section">
-          <!-- 💡 移除了原本的 onclick 弹窗，加上了 id 方便在脚本中控制跳转 -->
           <button id="add-product-btn" type="button" class="btn btn-primary" data-i18n="addProductBtn">+ Жаңа тауар қосу</button>
         </div>
         <div style="overflow-x:auto;">
@@ -72,13 +70,32 @@
           </table>
         </div>
       </section>
+
+      <section class="page-section container">
+        <h2 class="page-title">📋 Заказдарды басқару</h2>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Нөмірі</th>
+                <th>Уақыты</th>
+                <th>Клиент</th>
+                <th>Тауарлар</th>
+                <th>Сома</th>
+                <th>Күйі</th>
+                <th>Әрекет</th>
+              </tr>
+            </thead>
+            <tbody id="admin-order-list"></tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
     <script type="module">
-      import { checkAdmin, logout, renderAdminProducts } from '../js/admin.js';
+      import { checkAdmin, logout, renderAdminProducts, renderAdminOrders } from '../js/admin.js';
       import { initLanguage, setLanguage, getLanguage } from '../js/language.js';
 
-      // 初始化后台语言（复用前台同一套翻译字典和存储机制）
       initLanguage();
       const langSelect = document.getElementById('admin-lang-select');
       langSelect.value = getLanguage();
@@ -89,7 +106,6 @@
         setLanguage(e.target.value);
       });
 
-      // 1. 拦截未登录用户
       async function initDashboard() {
         const isAdmin = await checkAdmin();
         if (!isAdmin) {
@@ -97,23 +113,20 @@
           return;
         }
 
-        // 2. 绑定退出登录事件
         document.getElementById('logout-btn').addEventListener('click', async () => {
           await logout();
           window.location.href = 'login.html';
         });
 
-        // 3. 【彻底修复】利用原生 URL 动态获取并计算绝对路径，完美防御本地与线上 GitHub Pages 的 404
         document.getElementById('add-product-btn').addEventListener('click', () => {
           const targetUrl = new URL('product-edit.html', window.location.href).href;
           window.location.href = targetUrl;
         });
 
-        // 4. 渲染来自于 Supabase 的真实商品数据
         renderAdminProducts();
+        renderAdminOrders();
       }
 
-      // 启动页面
       initDashboard();
     </script>
   </body>
