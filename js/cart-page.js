@@ -50,7 +50,8 @@ async function init() {
     refreshCart();
   });
 
-  document.getElementById('submit-order-btn')?.addEventListener('click', () => {
+  const submitBtn = document.getElementById('submit-order-btn');
+  submitBtn?.addEventListener('click', async () => {
     const form = document.getElementById('order-form');
     if (!form.checkValidity()) {
       form.reportValidity();
@@ -62,16 +63,28 @@ async function init() {
       showToast(t('emptyCart'));
       return;
     }
-    const order = createOrder({
-      customerName: formData.get('customerName'),
-      phone: formData.get('phone'),
-      note: formData.get('note'),
-      deliveryType: formData.get('deliveryType'),
-    }, currentCart);
-    if (order) {
-      clearCart();
-      refreshCart();
-      form.reset();
+
+    // 提交期间禁用按钮，防止网络延迟时重复点击造成重复下单
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '...';
+
+    try {
+      const order = await createOrder({
+        customerName: formData.get('customerName'),
+        phone: formData.get('phone'),
+        note: formData.get('note'),
+        deliveryType: formData.get('deliveryType'),
+      }, currentCart);
+
+      if (order) {
+        clearCart();
+        refreshCart();
+        form.reset();
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
   });
 
