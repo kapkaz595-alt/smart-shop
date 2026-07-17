@@ -8,6 +8,12 @@ import { setState } from './state.js';
 import { showToast, formatPrice } from './utils.js';
 import { renderProducts } from './render.js';
 import { t } from './language.js';
+function resolveImageSrc(image) {
+  if (/^https?:\/\//.test(image)) {
+    return image; // 完整 URL(比如 Supabase),直接用
+  }
+  return `${import.meta.env.BASE_URL}${image}`; // 本地相对路径，保留原逻辑
+}
 
 /**
  * 从 localStorage 加载购物车到 state。
@@ -123,7 +129,7 @@ export function renderCartList(cart, callbacks = {}) {
     .map(
       (item) => `
       <div class="list-card" data-id="${item.id}">
-        <img class="list-card-image" src="${import.meta.env.BASE_URL}${item.image}" alt="${item.name}" />
+        <img class="list-card-image" src="${resolveImageSrc(item.image)}" alt="${item.name}" />
         <div class="list-card-body">
           <h4 class="list-card-title">${item.name}</h4>
           <p class="list-card-meta">${item.specs}</p>
