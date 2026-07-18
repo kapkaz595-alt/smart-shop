@@ -42,6 +42,9 @@ const PRODUCT_CATEGORY_TRANSLATIONS = {
   '方便面': { kk: 'Жылдам лапша', ru: 'Лапша быстрого приготовления', en: 'Instant Noodles' },
   '冷冻食品': { kk: 'Мұздатылған тағамдар', ru: 'Замороженные продукты', en: 'Frozen Food' },
   '日用品': { kk: 'Тұрмыстық тауарлар', ru: 'Товары для дома', en: 'Household Goods' },
+  '肉类': { kk: 'Ет өнімдері', ru: 'Мясные продукты', en: 'Meat Products' },
+  '粮油调味': { kk: 'Бакалея', ru: 'Бакалея', en: 'Pantry' },
+  '纸品': { kk: 'Қағаз өнімдері', ru: 'Бумажные изделия', en: 'Paper Products' },
 };
 
 /**
