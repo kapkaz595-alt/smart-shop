@@ -378,6 +378,7 @@ a {
 
 .category-list {
   display: flex;
+  flex-wrap: wrap;   /* 新增这一行：分类数量多时自动换到下一行，而不是被裁切在屏幕外 */
   gap: 10px;
   padding: 10px 24px;
 }
