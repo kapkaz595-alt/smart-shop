@@ -7,5 +7,8 @@
   { "id": "vegetables", "name_kk": "Көкөніс", "name_ru": "Овощи", "name_en": "Vegetables", "icon": "🥒" },
   { "id": "instant-noodles", "name_kk": "Жылдам лапша", "name_ru": "Лапша быстрого приготовления", "name_en": "Instant Noodles", "icon": "🍜" },
   { "id": "frozen", "name_kk": "Мұздатылған тағамдар", "name_ru": "Замороженные продукты", "name_en": "Frozen Food", "icon": "🧊" },
-  { "id": "daily", "name_kk": "Тұрмыстық тауарлар", "name_ru": "Товары для дома", "name_en": "Household Goods", "icon": "🧴" }
+  { "id": "daily", "name_kk": "Тұрмыстық тауарлар", "name_ru": "Товары для дома", "name_en": "Household Goods", "icon": "🧴" },
+  { "id": "meat", "name_kk": "Ет өнімдері", "name_ru": "Мясные продукты", "name_en": "Meat Products", "icon": "🥩" },
+  { "id": "pantry", "name_kk": "Бакалея", "name_ru": "Бакалея", "name_en": "Pantry", "icon": "🍚" },
+  { "id": "paper-goods", "name_kk": "Қағаз өнімдері", "name_ru": "Бумажные изделия", "name_en": "Paper Products", "icon": "🧻" }
 ]
