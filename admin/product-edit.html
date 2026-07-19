@@ -32,6 +32,52 @@
         padding: 6px 10px;
         font-size: 13px;
       }
+      /* 🆕 相册（更多图片）区块样式 */
+      .gallery-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .gallery-item {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .gallery-item .remove-gallery-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        border: none;
+        font-size: 12px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .gallery-item .remove-gallery-btn:hover {
+        background: #dc2626;
+      }
+      .gallery-uploading {
+        font-size: 12px;
+        color: var(--color-text-secondary, #888);
+        margin-top: 8px;
+      }
     </style>
   </head>
   <body>
@@ -160,6 +206,15 @@
             <p id="p-image-error" class="field-error" data-i18n="imageRequiredError">Тауардың негізгі суретін жүктеңіз</p>
           </div>
 
+          <!-- 🆕 更多图片（相册）区块：支持一次选多张，逐张上传预览，可单独删除 -->
+          <div class="form-group">
+            <label for="p-gallery-file" data-i18n="galleryLabel">Қосымша суреттер</label>
+            <input type="file" id="p-gallery-file" accept="image/*" class="form-control" multiple />
+            <p class="hint" data-i18n="galleryHint">Бірнеше суретті бірден таңдай аласыз</p>
+            <div id="p-gallery-preview" class="gallery-grid"></div>
+            <p id="p-gallery-uploading" class="gallery-uploading" hidden>Жүктелуде...</p>
+          </div>
+
           <div class="form-section-title" data-i18n="tagsPromotionSection">Белгілер мен акциялар</div>
 
           <div class="form-group">
@@ -221,6 +276,34 @@
       const submitBtn = document.getElementById('submit-btn');
       const isPromotionCheckbox = document.getElementById('p-is-promotion');
       const promotionFields = document.getElementById('promotion-fields');
+
+      // 🆕 相册（更多图片）相关元素与状态
+      const galleryFileInput = document.getElementById('p-gallery-file');
+      const galleryPreview = document.getElementById('p-gallery-preview');
+      const galleryUploading = document.getElementById('p-gallery-uploading');
+      let galleryUrls = []; // 存放已上传的更多图片 URL（不含主图）
+
+      // 🆕 重新渲染相册缩略图网格
+      function renderGalleryPreview() {
+        galleryPreview.innerHTML = galleryUrls
+          .map(
+            (url, index) => `
+              <div class="gallery-item" data-index="${index}">
+                <img src="${url}" alt="" />
+                <button type="button" class="remove-gallery-btn" data-index="${index}">×</button>
+              </div>
+            `
+          )
+          .join('');
+
+        galleryPreview.querySelectorAll('.remove-gallery-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.index);
+            galleryUrls.splice(idx, 1);
+            renderGalleryPreview();
+          });
+        });
+      }
 
       // 路由重定向助手
       function goBack() {
@@ -307,6 +390,29 @@
           }
         });
 
+        // 🆕 监听更多图片上传：一次可选多张，逐张上传，成功一张就加入相册预览
+        galleryFileInput.addEventListener('change', async (e) => {
+          const files = Array.from(e.target.files || []);
+          if (!files.length) return;
+
+          galleryUploading.hidden = false;
+          try {
+            for (const file of files) {
+              try {
+                const publicUrl = await uploadImage(file);
+                galleryUrls.push(publicUrl);
+                renderGalleryPreview();
+              } catch (err) {
+                showToast(`图片上传失败: ${file.name}`);
+              }
+            }
+            showToast('更多图片上传成功！');
+          } finally {
+            galleryUploading.hidden = true;
+            galleryFileInput.value = ''; // 清空选择，方便下次继续追加
+          }
+        });
+
         // 4. 如果是编辑模式，回显 Supabase 数据库中的商品数据；否则先加载空白分类下拉框
         if (isEditMode) {
           pageTitle.innerText = t('editProductTitle');
@@ -345,6 +451,12 @@
                 urlInput.value = p.image;
                 previewImg.src = p.image;
                 previewImg.style.display = 'block';
+              }
+
+              // 🆕 回显已有的更多图片（images 数组里排除掉主图，避免重复显示）
+              if (Array.isArray(p.images) && p.images.length) {
+                galleryUrls = p.images.filter((url) => url !== p.image);
+                renderGalleryPreview();
               }
             }
           } catch (err) {
@@ -392,6 +504,7 @@
             shelfLife: document.getElementById('p-shelf-life').value || null,
             productionDate: document.getElementById('p-production-date').value || null,
             image: urlInput.value,
+            images: [urlInput.value, ...galleryUrls], // 🆕 主图 + 更多图片一起组成完整相册数组
             description: document.getElementById('p-desc').value,
             features: parseCommaList(document.getElementById('p-features').value),
             isNew: document.getElementById('p-is-new').checked,
