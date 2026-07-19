@@ -339,6 +339,27 @@ async function confirmOrderAndDeductStock(orderId) {
 }
 
 /**
+ * 删除订单记录（从 Supabase 数据库中彻底删除）。
+ * 注意：删除不会自动恢复库存，如果这笔订单之前已经"确认"过并扣减了库存，
+ * 删除记录后库存不会自动补回，需要手动去商品管理里调整。
+ * @param {string} orderId
+ */
+async function deleteOrder(orderId) {
+  const { error } = await supabase
+    .from('orders')
+    .delete()
+    .eq('id', orderId);
+
+  if (error) {
+    showToast(`删除订单失败：${error.message}`);
+    return false;
+  }
+
+  showToast('订单已删除');
+  return true;
+}
+
+/**
  * 渲染后台订单列表（从 Supabase 读取所有订单，不受设备/localStorage 限制）。
  */
 export async function renderAdminOrders() {
@@ -354,17 +375,17 @@ export async function renderAdminOrders() {
     if (error) throw error;
 
     const statusLabel = {
-  pending: 'Расталуды күтуде',
-  confirmed: 'Расталды',
-  cancelled: 'Бас тартылды',
-  expired: 'Мерзімі өтті', // 新增
-};
-const statusClass = {
-  pending: 'pending',
-  confirmed: 'completed',
-  cancelled: 'cancelled',
-  expired: 'cancelled', // 新增
-};
+      pending: 'Расталуды күтуде',
+      confirmed: 'Расталды',
+      cancelled: 'Бас тартылды',
+      expired: 'Мерзімі өтті',
+    };
+    const statusClass = {
+      pending: 'pending',
+      confirmed: 'completed',
+      cancelled: 'cancelled',
+      expired: 'cancelled',
+    };
 
     tbody.innerHTML = (orders || [])
       .map((o) => {
@@ -386,7 +407,8 @@ const statusClass = {
               ${isPending
                 ? `<button type="button" class="btn btn-primary" data-action="confirm" data-id="${o.id}">Растау</button>
                    <button type="button" class="btn btn-danger" data-action="cancel-order" data-id="${o.id}">Бас тарту</button>`
-                : '-'}
+                : ''}
+              <button type="button" class="btn btn-secondary" data-action="delete-order" data-id="${o.id}">Жою</button>
             </td>
           </tr>
         `;
@@ -408,6 +430,14 @@ const statusClass = {
           const success = await updateOrderStatus(id, 'cancelled');
           if (success) {
             showToast('订单已取消');
+            renderAdminOrders();
+          }
+        }
+
+        if (action === 'delete-order') {
+          if (!confirm('确认永久删除该订单？此操作无法撤销，且不会自动恢复库存。')) return;
+          const success = await deleteOrder(id);
+          if (success) {
             renderAdminOrders();
           }
         }
